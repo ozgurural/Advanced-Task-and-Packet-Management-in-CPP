@@ -24,7 +24,14 @@ void TaskManager::removeTask(PeriodicTask task) {
 
 void TaskManager::setInterval(PeriodicTask task, int interval_sec) {
     std::lock_guard<std::mutex> lock(mutex_);
-    task.setInterval(interval_sec);
+
+    std::function<void()> func = []() {
+    // Your code here
+    };
+    bool createIfNotExist = true;
+
+
+    task.setInterval(interval_sec, func, createIfNotExist);
 }
 
 void TaskManager::taskThreadFunc() {
@@ -33,8 +40,20 @@ void TaskManager::taskThreadFunc() {
         std::chrono::time_point<std::chrono::system_clock> now = time_source_();
         std::lock_guard<std::mutex> lock(mutex_);
         for (PeriodicTask& task : tasks_) {
-            if (now - task.last_executed_time() >= task.interval()) {
+            // Compute the elapsed time since the last execution of the task
+            auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(now - task.last_executed_time());
+
+            // Convert the interval to a duration with the same units as elapsed_time
+            auto interval = std::chrono::duration_cast<decltype(elapsed_time)>(
+                std::chrono::duration<double>(task.interval())
+            );
+
+
+            // Check if the task needs to be executed
+            if (elapsed_time >= interval) {
+                // Execute the task and update the last_executed_time
                 task.execute();
+                task.set_last_executed_time(now);
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));

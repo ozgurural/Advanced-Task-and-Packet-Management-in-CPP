@@ -8,12 +8,13 @@
 class PeriodicTask {
 public:
     // Constructor that takes a lambda function and an integer as arguments
-    PeriodicTask(const std::function<void()>& func, int interval) : mutex_(new std::mutex())
+    PeriodicTask(const std::function<void()>& func, int interval) : mutex_(new std::mutex()), last_executed_time_(0.0) 
     {
         // Add the periodic task with the given interval and function
         Add(interval, func);
     }
 
+    double last_executed_time() const { return last_executed_time_; }
 
     // Adds a new periodic task with the given interval (in seconds) and function.
     // The function should be a callable object that takes no arguments and returns void.
@@ -42,4 +43,7 @@ private:
 
     // Mutex for thread-safety
     std::mutex* mutex_;
+
+    // Variable to store the last time a task was executed
+    double last_executed_time_;
 };
