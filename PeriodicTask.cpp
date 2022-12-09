@@ -58,3 +58,11 @@ void PeriodicTask::onNewTime(double time) {
         ++it;
     }
 }
+
+void PeriodicTask::execute() {
+
+}
+
+void PeriodicTask::set_last_executed_time(std::chrono::time_point<std::chrono::system_clock> point) {
+
+}

@@ -21,11 +21,14 @@ void TaskManager::removeTask(PeriodicTask task) {
 
 void TaskManager::setInterval(PeriodicTask& task, int interval_sec) {
     std::lock_guard<std::mutex> lock(mutex_);
+
+    // Define the task function
     std::function<void()> func = []() {
-    // Your code here
+        // Your code here
     };
-    bool createIfNotExist = true;
-    task.setInterval(interval_sec, func, createIfNotExist);
+
+    // Update the task interval
+    task.setInterval(interval_sec, func);
 }
 
 

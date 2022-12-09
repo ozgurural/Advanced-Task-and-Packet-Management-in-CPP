@@ -8,7 +8,7 @@
 class PeriodicTask {
 public:
     // Constructor that takes a lambda function and an integer as arguments
-    PeriodicTask(const std::function<void()>& func, int interval) : mutex_(new std::mutex()), last_executed_time_(0.0) 
+    PeriodicTask(const std::function<void()>& func, double interval) : mutex_(new std::mutex()), last_executed_time_(0.0) 
     {
         // Add the periodic task with the given interval and function
         Add(interval, func);
@@ -36,6 +36,10 @@ public:
 
     // Calls the correct periodic tasks based on the provided time (in seconds).
     void onNewTime(double time);
+
+    void execute();
+
+    void set_last_executed_time(std::chrono::time_point<std::chrono::system_clock> point);
 
 private:
     // Map of intervals (in seconds) to periodic task functions

@@ -82,13 +82,12 @@
         // Get a reference to the TaskManager instance.
         auto& task_manager = TaskManager::getInstance();
 
-        // Create a periodic task that prints "Hello, world!" every second
+        // You can also use the std::chrono::seconds function to create a duration
         auto task1 = std::make_unique<PeriodicTask>(
-            "Hello, world!",
-            std::chrono::seconds(1),
             []() {
-            std::cout << "Hello, world!" << std::endl;
-            }
+                std::cout << "Hello, world!" << std::endl;
+            },
+            1
         );
 
         // Add the task to the task manager.

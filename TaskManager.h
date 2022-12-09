@@ -23,7 +23,7 @@ public:
     void removeTask(PeriodicTask task);
 
     // Changes the interval of a task.
-    void setInterval(PeriodicTask task, int interval_sec);
+    void setInterval(PeriodicTask& task, int interval_sec);
 
     void startAllTasks();
 
