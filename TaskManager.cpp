@@ -9,9 +9,6 @@ TaskManager* TaskManager::getInstance() {
     return &instance;
 }
 
-TaskManager::TaskManager(std::function<std::chrono::time_point<std::chrono::system_clock>()> time_source)
-        : time_source_(time_source) {}
-
 void TaskManager::addTask(PeriodicTask task) {
     std::lock_guard<std::mutex> lock(mutex_);
     tasks_.push_back(task);
@@ -22,17 +19,24 @@ void TaskManager::removeTask(PeriodicTask task) {
     tasks_.remove(task);
 }
 
-void TaskManager::setInterval(PeriodicTask task, int interval_sec) {
+void TaskManager::setInterval(PeriodicTask& task, int interval_sec) {
     std::lock_guard<std::mutex> lock(mutex_);
-
     std::function<void()> func = []() {
     // Your code here
     };
     bool createIfNotExist = true;
-
-
     task.setInterval(interval_sec, func, createIfNotExist);
 }
+
+
+void TaskManager::startAllTasks() {
+    task_thread_ = std::thread(&TaskManager::taskThreadFunc, this);
+}
+
+void TaskManager::stopAllTasks() {
+    task_thread_.join();
+}
+
 
 void TaskManager::taskThreadFunc() {
     while (true) {

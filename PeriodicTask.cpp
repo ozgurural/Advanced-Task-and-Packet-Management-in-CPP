@@ -48,9 +48,11 @@ void PeriodicTask::setInterval(double interval, const std::function<void()>& fun
 // Calls the correct periodic tasks based on the provided time (in seconds).
 void PeriodicTask::onNewTime(double time) {
     std::lock_guard<std::mutex> lock(*mutex_);
+    // Convert the time to seconds
+    auto timeInSeconds = time / (24 * 60 * 60);
     // Check if any tasks need to be executed at the current time
-    auto it = tasks_.lower_bound(time);
-    while (it != tasks_.end() && it->first == time) {
+    auto it = tasks_.lower_bound(timeInSeconds);
+    while (it != tasks_.end() && it->first == timeInSeconds) {
         // Execute the task and advance the iterator
         it->second();
         ++it;
