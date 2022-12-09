@@ -4,7 +4,7 @@
 // The function should be a callable object that takes no arguments and returns void.
 void PeriodicTask::Add(double interval, const std::function<void()>& func)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(*mutex_);
     tasks_[interval] = func;
 }
 
@@ -12,7 +12,7 @@ void PeriodicTask::Add(double interval, const std::function<void()>& func)
 // If no such task exists, this function has no effect.
 void PeriodicTask::Remove(double interval)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(*mutex_);
     tasks_.erase(interval);
 }
 
@@ -20,7 +20,7 @@ void PeriodicTask::Remove(double interval)
 // If no such task exists, this function has no effect.
 void PeriodicTask::ChangeInterval(double oldInterval, double newInterval)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(*mutex_);
     auto it = tasks_.find(oldInterval);
     if (it != tasks_.end())
     {
@@ -34,7 +34,7 @@ void PeriodicTask::ChangeInterval(double oldInterval, double newInterval)
 // a new task with the given interval and function is added.
 // If no such task exists and createIfNotExist is false, this function has no effect.
 void PeriodicTask::setInterval(double interval, const std::function<void()>& func, bool createIfNotExist) {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(*mutex_);
     auto it = tasks_.find(interval);
     if (it != tasks_.end()) {
         // Update the existing task
@@ -47,7 +47,7 @@ void PeriodicTask::setInterval(double interval, const std::function<void()>& fun
 
 // Calls the correct periodic tasks based on the provided time (in seconds).
 void PeriodicTask::onNewTime(double time) {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(*mutex_);
     // Check if any tasks need to be executed at the current time
     auto it = tasks_.lower_bound(time);
     while (it != tasks_.end() && it->first == time) {

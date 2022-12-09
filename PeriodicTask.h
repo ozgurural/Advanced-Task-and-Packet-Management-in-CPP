@@ -7,6 +7,14 @@
 
 class PeriodicTask {
 public:
+    // Constructor that takes a lambda function and an integer as arguments
+    PeriodicTask(const std::function<void()>& func, int interval) : mutex_(new std::mutex())
+    {
+        // Add the periodic task with the given interval and function
+        Add(interval, func);
+    }
+
+
     // Adds a new periodic task with the given interval (in seconds) and function.
     // The function should be a callable object that takes no arguments and returns void.
     void Add(double interval, const std::function<void()>& func);
@@ -33,5 +41,5 @@ private:
     std::map<double, std::function<void()>> tasks_;
 
     // Mutex for thread-safety
-    std::mutex mutex_;
+    std::mutex* mutex_;
 };

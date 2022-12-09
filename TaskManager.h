@@ -1,4 +1,6 @@
 #include <list>
+#include <mutex>
+#include <thread>
 #include "PeriodicTask.h"
 
 class TaskManager {

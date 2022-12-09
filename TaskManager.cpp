@@ -2,12 +2,7 @@
 // Created by ozgurural on 12/8/22.
 //
 
-#include <mutex>
-#include <thread>
-#include <list>
 #include "TaskManager.h"
-
-using namespace std;
 
 TaskManager* TaskManager::getInstance() {
     static TaskManager instance;
@@ -24,7 +19,7 @@ void TaskManager::addTask(PeriodicTask task) {
 
 void TaskManager::removeTask(PeriodicTask task) {
     std::lock_guard<std::mutex> lock(mutex_);
-    tasks_.Remove(task);
+    tasks_.remove(task);
 }
 
 void TaskManager::setInterval(PeriodicTask task, int interval_sec) {
