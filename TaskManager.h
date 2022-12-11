@@ -1,4 +1,7 @@
-#include <list>
+#ifndef TASK_MANAGER_H
+#define TASK_MANAGER_H
+
+#include <map>
 #include <mutex>
 #include <thread>
 #include "PeriodicTask.h"
@@ -17,13 +20,13 @@ public:
     }
 
     // Adds a new task to the list of periodic tasks.
-    void addTask(PeriodicTask task);
+    void addTask();
 
     // Removes a task from the list of periodic tasks.
     void removeTask(PeriodicTask task);
 
     // Changes the interval of a task.
-    void setInterval(PeriodicTask& task, double interval_sec);
+    void setInterval(PeriodicTask& task, int interval_sec);
 
     void startAllTasks();
 
@@ -47,8 +50,8 @@ private:
     // Function that returns the current time.
     std::function<std::chrono::time_point<std::chrono::system_clock>()> time_source_;
 
-    // List of periodic tasks.
-    std::list<PeriodicTask> tasks_;
+    // Map of periodic tasks.
+    std::map<int, std::unique_ptr<PeriodicTask>> tasks_;
 
     // Mutex to ensure thread-safety.
     std::mutex mutex_;
@@ -59,3 +62,5 @@ private:
 
 // Initialize the static instance variable.
 std::unique_ptr<TaskManager> TaskManager::instance;
+
+#endif // TASK_MANAGER_H

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PERIODIC_TASK_H
+#define PERIODIC_TASK_H
 
 #include <chrono>
 #include <map>
@@ -14,6 +15,8 @@ public:
 
     auto getLastExecutedTime() const { return last_executed_time_; }
 
+    int getId() const { return id_; }
+
     // Changes the interval of a periodic task.
     void setInterval(double interval, const std::function<void()>& func);
 
@@ -25,6 +28,8 @@ private:
     // periodic task
     const std::function<void()>& task_;
 
+    int id_ = 0;
+
     // Mutex for thread-safety
     std::mutex mutex_;
 
@@ -33,3 +38,5 @@ private:
     double interval_;
     
 };
+
+#endif // PERIODIC_TASK_H

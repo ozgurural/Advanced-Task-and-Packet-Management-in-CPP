@@ -3,23 +3,19 @@
 //
 
 #include "TaskManager.h"
+#include "PeriodicTaskFactory.h"
 
-TaskManager* TaskManager::getInstance() {
-    static TaskManager instance;
-    return &instance;
-}
-
-void TaskManager::addTask(int interval) {
+void TaskManager::addTask() {
     std::lock_guard<std::mutex> lock(mutex_);
-    // Use the factory class to create the periodic task
-    auto task = PeriodicTaskFactory::createPeriodicTask(interval);
+
+    std::unique_ptr<PeriodicTask> task = PeriodicTaskFactory::createPeriodicTask(1);
     // Add the task to the list of managed tasks
-    tasks_.push_back(std::move(task));
+    tasks_.emplace(task->getId(), std::move(task));
 }
 
 void TaskManager::removeTask(PeriodicTask task) {
     std::lock_guard<std::mutex> lock(mutex_);
-    tasks_.remove(task);
+    tasks_.erase(0);
 }
 
 void TaskManager::setInterval(PeriodicTask& task, int interval_sec) {
@@ -47,6 +43,7 @@ void TaskManager::stopAllTasks() {
 void TaskManager::taskThreadFunc() {
     while (true) {
         // Use the time source function to get the current time.
+        /*
         std::chrono::time_point<std::chrono::system_clock> now = time_source_();
         std::lock_guard<std::mutex> lock(mutex_);
         for (PeriodicTask &task(<#initializer#>, 0, <#initializer#>): tasks_) {
@@ -67,5 +64,6 @@ void TaskManager::taskThreadFunc() {
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        */
     }
 }
