@@ -14,7 +14,6 @@ public:
         interval
     );
     
-    
     return std::make_unique<PeriodicTask>(task);
   }
 };

@@ -74,7 +74,6 @@ void onNewTime(auto PeriodicTask, struct timeval aCurrentTime ) {
 }
 
 
-
 */
 int main() {
 
