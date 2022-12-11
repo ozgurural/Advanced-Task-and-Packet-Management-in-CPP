@@ -4,11 +4,10 @@
 #include "PeriodicTask.h"
 #include <iostream>
 #include <memory>   
-#include <pcap/pcap.h>  
+// #include <pcap/pcap.h>  
 
-
-std::chrono::seconds seconds(5);
-
+/*
+std::chrono::seconds currentTime(5);
 
 
 // Method to retrieve the next packet from the current source.
@@ -74,20 +73,13 @@ void onNewTime(auto PeriodicTask, struct timeval aCurrentTime ) {
     TaskManager::getInstance().setInterval(PeriodicTask, aCurrentTime);
 }
 
-int main() {     
+
+
+*/
+int main() {
+
     // Get a reference to the TaskManager instance.
     auto& task_manager = TaskManager::getInstance();
-
-    // You can also use the std::chrono::seconds function to create a duration
-    auto task1 = std::make_unique<PeriodicTask> (
-        []() {
-            std::cout << "Hello, world!" << std::endl;
-        },
-        1
-    );
-
-    // Add the task to the task manager.
-    task_manager.addTask(*task1);
 
     // Start all tasks
     task_manager.startAllTasks();

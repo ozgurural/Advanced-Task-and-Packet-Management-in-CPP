@@ -9,9 +9,12 @@ TaskManager* TaskManager::getInstance() {
     return &instance;
 }
 
-void TaskManager::addTask(PeriodicTask task) {
+void TaskManager::addTask(int interval) {
     std::lock_guard<std::mutex> lock(mutex_);
-    tasks_.push_back(task);
+    // Use the factory class to create the periodic task
+    auto task = PeriodicTaskFactory::createPeriodicTask(interval);
+    // Add the task to the list of managed tasks
+    tasks_.push_back(std::move(task));
 }
 
 void TaskManager::removeTask(PeriodicTask task) {
@@ -46,7 +49,7 @@ void TaskManager::taskThreadFunc() {
         // Use the time source function to get the current time.
         std::chrono::time_point<std::chrono::system_clock> now = time_source_();
         std::lock_guard<std::mutex> lock(mutex_);
-        for (PeriodicTask& task : tasks_) {
+        for (PeriodicTask &task(<#initializer#>, 0, <#initializer#>): tasks_) {
             // Compute the elapsed time since the last execution of the task
             auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(now - task.last_executed_time());
 
