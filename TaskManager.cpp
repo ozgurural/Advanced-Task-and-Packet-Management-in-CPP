@@ -27,21 +27,25 @@ void TaskManager::addTask() {
 
 void TaskManager::removeTask(PeriodicTask task) {
     std::lock_guard<std::mutex> lock(mutex_);
-    tasks_.erase(0);
+    
+    // tasks_ is a map from interval to vector of tasks
+    // get the vector of tasks for the given interval
+    auto& task_vec = tasks_[task.getInterval()];
+    
+    // find the task with the matching id and remove it
+    task_vec.erase(std::remove_if(task_vec.begin(), task_vec.end(), 
+        [&task](const std::unique_ptr<PeriodicTask>& t) {
+            return t->getId() == task.getId();
+        }), task_vec.end());
 }
+
 
 void TaskManager::setInterval(PeriodicTask& task, int interval_sec) {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    // Define the task function
-    std::function<void()> func = []() {
-        // Your code here
-    };
-
     // Update the task interval
-    task.setInterval(interval_sec, func);
+    task.setInterval(interval_sec);
 }
-
 
 void TaskManager::startAllTasks() {
     task_thread_ = std::thread(&TaskManager::taskThreadFunc, this);
