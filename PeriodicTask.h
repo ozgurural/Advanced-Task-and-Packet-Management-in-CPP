@@ -20,6 +20,8 @@ public:
     // Changes the interval of a periodic task.
     void setInterval(double interval, const std::function<void()>& func);
 
+    auto getInterval() const { return interval_; }
+
     void execute();
 
     void setLastExecutedTime(std::chrono::time_point<std::chrono::system_clock> point);

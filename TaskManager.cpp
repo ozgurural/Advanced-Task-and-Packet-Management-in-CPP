@@ -1,6 +1,14 @@
 #include "TaskManager.h"
 #include "PeriodicTaskFactory.h"
 
+// Define the time_source_() function.
+std::chrono::time_point<std::chrono::system_clock> time_source_()
+{
+    // Return the current time according to the system clock.
+    return std::chrono::system_clock::now();
+}
+
+
 // Initialize the static instance variable.
 std::unique_ptr<TaskManager> TaskManager::taskManagerInstance;
 
@@ -12,8 +20,9 @@ void TaskManager::addTask() {
     std::unique_ptr<PeriodicTask> task = task_factory.createPeriodicTask(1, []() {
         // Your code here
     });
-    // Add the task to the list of managed tasks
-    tasks_.emplace(task->getId(), std::move(task));
+
+    auto interval = task->getInterval();
+    tasks_[interval].emplace_back(std::move(task));
 }
 
 void TaskManager::removeTask(PeriodicTask task) {
@@ -45,27 +54,33 @@ void TaskManager::stopAllTasks() {
 void TaskManager::taskThreadFunc() {
     while (true) {
         // Use the time source function to get the current time.
-        /*
         std::chrono::time_point<std::chrono::system_clock> now = time_source_();
         std::lock_guard<std::mutex> lock(mutex_);
-        for (PeriodicTask &task(<#initializer#>, 0, <#initializer#>): tasks_) {
-            // Compute the elapsed time since the last execution of the task
-            auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(now - task.last_executed_time());
+        // Iterate over the map of vectors
+        //    std::map<int, std::vector<std::unique_ptr<PeriodicTask>>> tasks_;
 
-            // Convert the interval to a duration with the same units as elapsed_time
-            auto interval = std::chrono::duration_cast<decltype(elapsed_time)>(
-                std::chrono::duration<double>(task.interval())
-            );
+        for (auto& task_pair : tasks_) {
+            auto& interval = task_pair.first;
+            auto& tasks = task_pair.second;
+            // Iterate over the vector of tasks
+            for (auto& task : tasks) {
+                // Compute the elapsed time since the last execution of the task
+                auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<double>>(now - task->getLastExecutedTime());
 
+                // Convert the interval to a duration with the same units as elapsed_time
+                auto interval_duration = std::chrono::duration_cast<decltype(elapsed_time)>(
+                    std::chrono::duration<double>(interval)
+                );
 
-            // Check if the task needs to be executed
-            if (elapsed_time >= interval) {
-                // Execute the task and update the last_executed_time
-                task.execute();
-                task.set_last_executed_time(now);
+                // Check if the task needs to be executed
+                if (elapsed_time >= interval_duration) {
+                    // Execute the task and update the last_executed_time
+                    task->execute();
+                    task->setLastExecutedTime(now);
+                }
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        */
     }
 }
+

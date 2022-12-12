@@ -2,6 +2,7 @@
 #define TASK_MANAGER_H
 
 #include <map>
+#include <vector>
 #include <mutex>
 #include <memory>
 #include <thread>
@@ -45,7 +46,7 @@ private:
     std::thread task_thread_;
 
     // Map containing managed periodic tasks
-    std::map<int, std::unique_ptr<PeriodicTask>> tasks_;
+    std::map<int, std::vector<std::unique_ptr<PeriodicTask>>> tasks_;
 
     void taskThreadFunc();
 };
