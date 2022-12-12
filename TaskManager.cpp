@@ -1,14 +1,17 @@
-//
-// Created by ozgurural on 12/8/22.
-//
-
 #include "TaskManager.h"
 #include "PeriodicTaskFactory.h"
+
+// Initialize the static instance variable.
+std::unique_ptr<TaskManager> TaskManager::taskManagerInstance;
 
 void TaskManager::addTask() {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    std::unique_ptr<PeriodicTask> task = PeriodicTaskFactory::createPeriodicTask(1);
+    auto& task_factory = PeriodicTaskFactory::getInstance();
+
+    std::unique_ptr<PeriodicTask> task = task_factory.createPeriodicTask(1, []() {
+        // Your code here
+    });
     // Add the task to the list of managed tasks
     tasks_.emplace(task->getId(), std::move(task));
 }
@@ -38,7 +41,6 @@ void TaskManager::startAllTasks() {
 void TaskManager::stopAllTasks() {
     task_thread_.join();
 }
-
 
 void TaskManager::taskThreadFunc() {
     while (true) {

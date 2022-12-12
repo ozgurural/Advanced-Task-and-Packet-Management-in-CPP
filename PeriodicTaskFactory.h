@@ -4,8 +4,8 @@
 #include <chrono>
 #include <map>
 #include <mutex>
-#include <functional>
 #include <memory>
+#include <functional>
 
 #include "PeriodicTask.h"
 
@@ -14,15 +14,15 @@ public:
     // Get a reference to the TaskManager instance.
     static PeriodicTaskFactory& getInstance() {
         // If the instance hasn't been created yet, create it.
-        if (!instance) {
-            instance = std::unique_ptr<PeriodicTaskFactory>(new PeriodicTaskFactory());
+        if (!periodicTaskFactoryInstance) {
+            periodicTaskFactoryInstance = std::unique_ptr<PeriodicTaskFactory>(new PeriodicTaskFactory());
         }
 
         // Return a reference to the instance.
-        return *instance;
+        return *periodicTaskFactoryInstance;
     }
 
-    static std::unique_ptr<PeriodicTask> createPeriodicTask(int interval);
+    static std::unique_ptr<PeriodicTask> createPeriodicTask(int interval, const std::function<void()>& task);
 
     auto getLastExecutedTime() const { return last_executed_time_; }
 
@@ -42,7 +42,7 @@ private:
     PeriodicTaskFactory& operator=(const PeriodicTaskFactory&) = delete;
 
     // Private static member variable to store the instance.
-    static std::unique_ptr<PeriodicTaskFactory> instance;
+    static std::unique_ptr<PeriodicTaskFactory> periodicTaskFactoryInstance;
 
     // Mutex for thread-safety
     std::mutex mutex_;
@@ -50,10 +50,9 @@ private:
     // Variable to store the last time a task was executed
     std::chrono::time_point<std::chrono::system_clock> last_executed_time_;
     double interval_;
-    
+    std::function<void()> task_;
 };
 
-// Initialize the static instance variable.
-std::unique_ptr<PeriodicTaskFactory> PeriodicTaskFactory::instance;
+static std::unique_ptr<PeriodicTaskFactory> periodicTaskFactoryInstance;
 
 #endif // PERIODIC_TASK_FACTORY_H

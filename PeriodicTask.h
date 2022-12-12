@@ -9,8 +9,8 @@
 class PeriodicTask {
 public:
     // Constructor that takes a lambda function and an integer as arguments
-    PeriodicTask(const std::function<void()> &func, double interval, const std::function<void()> &task)
-            : last_executed_time_(std::chrono::system_clock::now()), task_(task), interval_(interval) {
+    PeriodicTask(double interval, const std::function<void()> &task)
+            : last_executed_time_(std::chrono::system_clock::now()), task_(task), interval_(0) {
     }
 
     auto getLastExecutedTime() const { return last_executed_time_; }
