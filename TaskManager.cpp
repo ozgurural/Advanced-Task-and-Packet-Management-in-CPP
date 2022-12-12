@@ -2,12 +2,10 @@
 #include "PeriodicTaskFactory.h"
 
 // Define the time_source_() function.
-std::chrono::time_point<std::chrono::system_clock> time_source_()
-{
-    // Return the current time according to the system clock.
-    return std::chrono::system_clock::now();
+std::chrono::time_point<std::chrono::steady_clock> TaskManager::getTimeSource() {
+    // Return the current time according to a monotonic clock.
+    return std::chrono::steady_clock::now();
 }
-
 
 // Initialize the static instance variable.
 std::unique_ptr<TaskManager> TaskManager::taskManagerInstance;
@@ -58,7 +56,7 @@ void TaskManager::stopAllTasks() {
 void TaskManager::taskThreadFunc() {
     while (true) {
         // Use the time source function to get the current time.
-        std::chrono::time_point<std::chrono::system_clock> now = time_source_();
+        std::chrono::time_point<std::chrono::steady_clock>  now = getTimeSource();
         std::lock_guard<std::mutex> lock(mutex_);
         // Iterate over the map of vectors
         //    std::map<int, std::vector<std::unique_ptr<PeriodicTask>>> tasks_;
@@ -84,7 +82,10 @@ void TaskManager::taskThreadFunc() {
                 }
             }
         }
+        // Sleep for a short time to allow other threads to run
+        // @todo - make this time configurable or use a condition variable
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
+
 

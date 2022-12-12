@@ -22,6 +22,7 @@ public:
         return *taskManagerInstance;
     }
 
+    std::chrono::time_point<std::chrono::steady_clock> getTimeSource();
     void addTask();
     void removeTask(PeriodicTask task);
     void setInterval(PeriodicTask& task, int interval_sec);
