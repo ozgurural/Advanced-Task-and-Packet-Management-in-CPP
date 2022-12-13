@@ -49,7 +49,7 @@ private:
 
     // Variable to store the last time a task was executed
     std::chrono::time_point<std::chrono::system_clock> last_executed_time_;
-    double interval_;
+    double interval_{};
     std::function<void()> task_;
 };
 

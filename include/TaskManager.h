@@ -11,6 +11,10 @@
 
 class TaskManager {
 public:
+    // Private copy constructor and assignment operator.
+    TaskManager(const TaskManager&) = delete;
+    TaskManager& operator=(const TaskManager&) = delete;
+
     // Get a reference to the TaskManager instance.
     static TaskManager& getInstance() {
         // If the instance hasn't been created yet, create it.
@@ -34,12 +38,8 @@ public:
 
 private:
     // Private constructor.
-    TaskManager() {}
-
-    // Private copy constructor and assignment operator.
-    TaskManager(const TaskManager&) = delete;
-    TaskManager& operator=(const TaskManager&) = delete;
-
+    TaskManager() = default;
+    
     // Private static member variable to store the instance.
     static std::unique_ptr<TaskManager> taskManagerInstance;
 
@@ -54,6 +54,5 @@ private:
 
     void taskThreadFunc();
 };
-
 
 #endif // TASK_MANAGER_H
