@@ -6,8 +6,12 @@
 #include <mutex>
 #include <memory>
 #include <thread>
+#include <queue>
+#include <condition_variable>
+
 
 #include "PeriodicTaskFactory.h"
+#include "Packet.h"
 
 class TaskManager {
 public:
@@ -45,12 +49,21 @@ private:
 
     // Mutex for thread-safety
     std::mutex mutex_;
+    std::mutex packet_queue_mutex_;
 
     // Thread used to execute periodic tasks
     std::thread task_thread_;
+    std::thread packet_thread_;
 
     // Map containing managed periodic tasks
     std::map<int, std::vector<std::unique_ptr<PeriodicTask>>> tasks_;
+
+    // Queue of packets to be processed
+    std::queue<std::unique_ptr<Packet>> packet_queue_;
+
+    // Condition variable used to signal the task thread to wake up
+    std::condition_variable packet_queue_cv_;
+
 
     void taskThreadFunc();
 };

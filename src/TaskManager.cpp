@@ -1,5 +1,5 @@
 #include "TaskManager.h"
-#include "PeriodicTaskFactory.h"
+
 
 // Define the time_source_() function.
 std::chrono::time_point<std::chrono::steady_clock> TaskManager::getTimeSource() {
@@ -10,10 +10,16 @@ std::chrono::time_point<std::chrono::steady_clock> TaskManager::getTimeSource() 
 // Method to process packets from the current source until there are no more packets.
 void TaskManager::processPackets() {
     while (true) {
-        // Get the latest packet (from online or offline source)
-        pkt = pop_packet();
+        // Wait for the next packet to be available in the queue
+        std::unique_lock<std::mutex> lock(packet_queue_mutex_);
+        packet_queue_cv_.wait(lock, [this] { return !packet_queue_.empty(); });
 
-        // If there are no more packets, exit the loop.
+        // Pop the next packet from the queue
+        auto pkt = packet_queue_.front();
+        packet_queue_.pop();
+        lock.unlock();
+
+        // If the packet has a new timestamp, call onNewTime()
         if (currentTime.tv_sec != pkt.time.tv_sec) {
             onNewTime(pkt.time);
         }
@@ -21,6 +27,12 @@ void TaskManager::processPackets() {
         // Process the packet.
         process_pkt(pkt);
     }
+}
+
+void TaskManager::addPacket(Packet pkt) {
+    std::lock_guard<std::mutex> lock(packet_queue_mutex_);
+    packet_queue_.push(pkt);
+    packet_queue_cv_.notify_one();
 }
 
 void TaskManager::onNewTime(auto PeriodicTask, struct timeval aCurrentTime ) {
@@ -76,10 +88,12 @@ void TaskManager::setInterval(PeriodicTask& task, int interval_sec) {
 
 void TaskManager::startAllTasks() {
     task_thread_ = std::thread(&TaskManager::taskThreadFunc, this);
+    packet_thread_ = std::thread(&TaskManager::processPackets, this);
 }
 
 void TaskManager::stopAllTasks() {
     task_thread_.join();
+    packet_thread_.join();
 }
 
 void TaskManager::taskThreadFunc() {
