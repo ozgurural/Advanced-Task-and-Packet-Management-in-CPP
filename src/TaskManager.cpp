@@ -7,6 +7,29 @@ std::chrono::time_point<std::chrono::steady_clock> TaskManager::getTimeSource() 
     return std::chrono::steady_clock::now();
 }
 
+// Method to process packets from the current source until there are no more packets.
+void TaskManager::processPackets() {
+    while (true) {
+        // Get the latest packet (from online or offline source)
+        pkt = pop_packet();
+
+        // If there are no more packets, exit the loop.
+        if (currentTime.tv_sec != pkt.time.tv_sec) {
+            onNewTime(pkt.time);
+        }
+
+        // Process the packet.
+        process_pkt(pkt);
+    }
+}
+
+void TaskManager::onNewTime(auto PeriodicTask, struct timeval aCurrentTime ) {
+    currentTime = aCurrentTime;
+
+    // Update the PeriodicTask objects in the TaskManager
+    TaskManager::getInstance().setInterval(PeriodicTask, aCurrentTime);
+}
+
 // Initialize the static instance variable.
 std::unique_ptr<TaskManager> TaskManager::taskManagerInstance;
 
@@ -21,6 +44,12 @@ void TaskManager::addTask() {
 
     auto interval = task->getInterval();
     tasks_[interval].emplace_back(std::move(task));
+}
+
+//     std::map<int, std::vector<std::unique_ptr<PeriodicTask>>> tasks_;
+std::map<int, std::vector<std::unique_ptr<PeriodicTask>>>& TaskManager::getTasks() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return tasks_;
 }
 
 void TaskManager::removeTask(PeriodicTask task) {
@@ -58,9 +87,9 @@ void TaskManager::taskThreadFunc() {
         // Use the time source function to get the current time.
         std::chrono::time_point<std::chrono::steady_clock>  now = getTimeSource();
         std::lock_guard<std::mutex> lock(mutex_);
+        
         // Iterate over the map of vectors
         //    std::map<int, std::vector<std::unique_ptr<PeriodicTask>>> tasks_;
-
         for (auto& task_pair : tasks_) {
             auto& interval = task_pair.first;
             auto& tasks = task_pair.second;

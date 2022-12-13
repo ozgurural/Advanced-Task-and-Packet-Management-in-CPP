@@ -24,10 +24,13 @@ public:
 
     std::chrono::time_point<std::chrono::steady_clock> getTimeSource();
     void addTask();
+    std::map<int, std::vector<std::unique_ptr<PeriodicTask>>>& getTasks();
     void removeTask(PeriodicTask task);
     void setInterval(PeriodicTask& task, int interval_sec);
     void startAllTasks();
     void stopAllTasks();
+    void onNewTime(auto PeriodicTask, struct timeval aCurrentTime );
+    void processPackets();
 
 private:
     // Private constructor.

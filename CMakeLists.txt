@@ -11,7 +11,6 @@ include_directories(
     include
 )
 
-
 # Set the source files for the forescout executable
 set(SOURCES
     src/main.cpp
@@ -30,6 +29,18 @@ set(HEADERS
 # Add the forescout executable with the specified source and header files
 add_executable(forescout ${SOURCES} ${HEADERS})
 
-# Link the Boost.Test library for testing
-# find_package(Boost REQUIRED COMPONENTS test)
-# target_link_libraries(periodic_task INTERFACE Boost::test)
+
+# Link the GTest.Test library for testing
+find_package(GTest REQUIRED)
+
+# Set the source files for the test_TaskManager test
+set(TEST_SOURCES
+    test/test_TaskManager.cpp
+)
+
+# Add the test_TaskManager executable with the specified source files
+add_executable(test_TaskManager ${TEST_SOURCES})
+
+# Link the Google Test library to the test_TaskManager target
+target_link_libraries(test_TaskManager ${GTEST_BOTH_LIBRARIES})
+
