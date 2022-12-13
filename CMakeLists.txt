@@ -43,4 +43,3 @@ add_executable(test_TaskManager ${TEST_SOURCES})
 
 # Link the Google Test library to the test_TaskManager target
 target_link_libraries(test_TaskManager ${GTEST_BOTH_LIBRARIES})
-
