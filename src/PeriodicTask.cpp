@@ -14,14 +14,14 @@ void PeriodicTask::setInterval(double interval) {
     interval_ = interval;
 }
 
-void PeriodicTask::setFunction(const std::function<void()>& func) {
+void PeriodicTask::setFunction(const std::function<void(std::unique_ptr<Packet>&)>& func)  {
     std::lock_guard<std::mutex> lock(mutex_);
-    func_ = func;
+    task_ = func;
 }
 
-void PeriodicTask::execute() {
+void PeriodicTask::execute(std::unique_ptr<Packet>& packet) {
     std::lock_guard<std::mutex> lock(mutex_);
-    func_();
+    task_(packet);
     last_executed_time_ = std::chrono::steady_clock::now();
 }
 

@@ -15,7 +15,7 @@
 class TaskManager {
 public:
     std::chrono::time_point<std::chrono::steady_clock> getTimeSource();
-    void addTask();
+    void addTask(std::unique_ptr<PeriodicTask>);
     auto& getTasks();
     void removeTask(PeriodicTask task);
     void setInterval(PeriodicTask& task, int interval_sec);
@@ -41,7 +41,10 @@ private:
     std::thread packet_thread_;
 
     // Map containing managed periodic tasks
-    std::map<time_t, std::pair<std::vector<std::unique_ptr<Packet>>, std::vector<std::unique_ptr<PeriodicTask>>>> packets_tasks_map_;
+    std::map<time_t,
+             std::pair<std::vector<std::unique_ptr<Packet>>,
+                       std::vector<std::unique_ptr<PeriodicTask>>>>
+        packets_and_tasks_map_;
 
     // Queue of packets to be processed
     std::queue<std::unique_ptr<Packet>> incoming_packet_queue_;

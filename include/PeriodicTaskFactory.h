@@ -25,12 +25,12 @@ public:
 
     static std::unique_ptr<PeriodicTask> createPeriodicTask(
         int interval,
-        const std::function<void()>& task);
+        const std::function<void(std::unique_ptr<Packet>&)> task);
 
     auto getLastExecutedTime() const { return last_executed_time_; }
 
     // Changes the interval of a periodic task.
-    void setInterval(double interval, const std::function<void()>& func);
+    void setInterval(double interval, const std::function<void(std::unique_ptr<Packet>&)>& func);
 
     void execute();
 

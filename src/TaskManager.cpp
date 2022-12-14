@@ -13,26 +13,28 @@ void TaskManager::processPackets() {
     while (true) {
         // Wait for the next packet to be available in the queue
         std::unique_lock<std::mutex> lock(packet_queue_mutex_);
-        packet_queue_cv_.wait(lock, [this] { return !incoming_packet_queue_.empty(); });
+        packet_queue_cv_.wait(
+            lock, [this] { return !incoming_packet_queue_.empty(); });
 
         // Pop the next packet from the queue
-        auto pkt = incoming_packet_queue_.front();
+        auto packet = *incoming_packet_queue_.front();
         incoming_packet_queue_.pop();
         lock.unlock();
 
         // If the packet has a new timestamp, call onNewTime()
-        if (currentTime_.tv_sec != pkt.time.tv_sec) {
-            onNewTime(pkt.time);
+        if (currentTime_.tv_sec != packet.time.tv_sec) {
+            onNewTime(packet.time);
         }
 
-        // Process the packet.
-        process_pkt(pkt);
+        // Add packet to the packets_and_tasks_map_
+        addPacket(std::make_unique<Packet>(packet));
     }
 }
 
-void TaskManager::addPacket(Packet pkt) {
+void TaskManager::addPacket(std::unique_ptr<Packet> packet) {
     std::lock_guard<std::mutex> lock(packet_queue_mutex_);
-    packet_queue_.push(pkt);
+    packets_and_tasks_map_[packet.get()->time.tv_sec].first.emplace_back(
+        std::move(packet));
     packet_queue_cv_.notify_one();
 }
 
@@ -47,25 +49,12 @@ void TaskManager::onNewTime(struct timeval aCurrentTime) {
 // Initialize the static instance variable.
 std::unique_ptr<TaskManager> TaskManager::taskManagerInstance;
 
-void TaskManager::addTask() {
+void TaskManager::addTask(std::unique_ptr<PeriodicTask> task) {
     std::lock_guard<std::mutex> lock(mutex_);
-
-    auto& task_factory = PeriodicTaskFactory::getInstance();
-
-    std::unique_ptr<PeriodicTask> task =
-        task_factory.createPeriodicTask(1, []() {
-            // Your code here
-        });
 
     auto interval = task->getInterval();
-    tasks_[interval].emplace_back(std::move(task));
-}
 
-// std::map<int, std::vector<std::unique_ptr<PeriodicTask>>> tasks_;
-std::map<time_t, std::vector<std::unique_ptr<PeriodicTask>>>&
-TaskManager::getTasks() {
-    std::lock_guard<std::mutex> lock(mutex_);
-    return tasks_;
+    packets_and_tasks_map_[interval].second.emplace_back(std::move(task));
 }
 
 void TaskManager::removeTask(PeriodicTask task) {
@@ -73,7 +62,7 @@ void TaskManager::removeTask(PeriodicTask task) {
 
     // tasks_ is a map from interval to vector of tasks
     // get the vector of tasks for the given interval
-    auto& task_vec = tasks_[task.getInterval()];
+    auto& task_vec = packets_and_tasks_map_[task.getInterval()].second;
 
     // find the task with the matching id and remove it
     task_vec.erase(
@@ -108,29 +97,31 @@ void TaskManager::taskThreadFunc() {
             getTimeSource();
         std::lock_guard<std::mutex> lock(mutex_);
 
-        // std::map<time_t, std::vector<std::unique_ptr<PeriodicTask>>> tasks_;
-        auto& interval = currentTime_.tv_sec;
-        auto& currentTime_tasks = tasks_[currentTime_.tv_sec];
+        // std::map<time_t, std::pair<std::vector<std::unique_ptr<Packet>>,
+        // std::vector<std::unique_ptr<PeriodicTask>>>> packets_and_tasks_map_;
+        // Create a duration that represents the interval in seconds
+        auto interval = std::chrono::duration<double>(currentTime_.tv_sec);
+        auto& packets_and_tasks = packets_and_tasks_map_[currentTime_.tv_sec];
+
         // Iterate over the vector of tasks
-        for (auto& task : currentTime_tasks) {
+        for (auto& task : packets_and_tasks.second) {
             // Compute the elapsed time since the last execution of the task
             auto elapsed_time =
                 std::chrono::duration_cast<std::chrono::duration<double>>(
                     now - task->getLastExecutedTime());
 
-            // Convert the interval to a duration with the same units as
-            // elapsed_time
-            auto interval_duration =
-                std::chrono::duration_cast<decltype(elapsed_time)>(
-                    std::chrono::duration<double>(interval));
-
             // Check if the task needs to be executed
-            if (elapsed_time >= interval_duration) {
-                // Execute the task and update the last_executed_time
-                task->execute();
+            if (elapsed_time >= interval) {
+                // Iterate over the packets and execute the task with each
+                // packet
+                for (auto& packet : packets_and_tasks.first) {
+                    task->execute(packet);
+                }
+                // Update the last_executed_time
                 task->setLastExecutedTime(now);
             }
         }
+
         // Sleep for a short time to allow other threads to run
         // @todo - make this time configurable or use a condition variable
         std::this_thread::sleep_for(std::chrono::milliseconds(10));

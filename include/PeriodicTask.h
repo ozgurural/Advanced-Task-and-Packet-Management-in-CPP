@@ -4,16 +4,18 @@
 #include <chrono>
 #include <functional>
 #include <map>
+#include <memory>
 #include <mutex>
+
+#include "Packet.h"
 
 class PeriodicTask {
 public:
     // Constructor that takes a lambda function and an integer as arguments
-    PeriodicTask(double interval, const std::function<void()>& task)
+    PeriodicTask(double interval, const std::function<void(std::unique_ptr<Packet>&)> task)
         : last_executed_time_(std::chrono::steady_clock::now()),
           task_(task),
           interval_(0),
-          func_(task),
           id_(next_id_++) {}
 
     // get the unique id of the task
@@ -26,11 +28,11 @@ public:
 
     auto getInterval() const { return interval_; }
 
-    void setFunction(const std::function<void()>& func);
+    void setFunction(const std::function<void(std::unique_ptr<Packet>&)>& func);
 
     bool isTimeToExecute();
 
-    void execute();
+    void execute(std::unique_ptr<Packet>&);
 
     void setLastExecutedTime(
         std::chrono::time_point<std::chrono::steady_clock> point);
@@ -43,7 +45,7 @@ private:
     static int next_id_;
 
     // periodic task
-    const std::function<void()>& task_;
+    std::function<void(std::unique_ptr<Packet>&)> task_;
 
     // Mutex for thread-safety
     std::mutex mutex_;
@@ -51,7 +53,6 @@ private:
     // Variable to store the last time a task was executed
     std::chrono::time_point<std::chrono::steady_clock> last_executed_time_;
     double interval_;
-    std::function<void()> func_ = nullptr;
 };
 
 #endif  // PERIODIC_TASK_H
