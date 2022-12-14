@@ -14,37 +14,18 @@
 
 class TaskManager {
 public:
-    // Private copy constructor and assignment operator.
-    TaskManager(const TaskManager&) = delete;
-    TaskManager& operator=(const TaskManager&) = delete;
-
-    // Get a reference to the TaskManager instance.
-    static TaskManager& getInstance() {
-        // If the instance hasn't been created yet, create it.
-        if (!taskManagerInstance) {
-            taskManagerInstance =
-                std::unique_ptr<TaskManager>(new TaskManager());
-        }
-
-        // Return a reference to the instance.
-        return *taskManagerInstance;
-    }
-
     std::chrono::time_point<std::chrono::steady_clock> getTimeSource();
     void addTask();
-    std::map<int, std::vector<std::unique_ptr<PeriodicTask>>>& getTasks();
+    auto& getTasks();
     void removeTask(PeriodicTask task);
     void setInterval(PeriodicTask& task, int interval_sec);
     void startAllTasks();
     void stopAllTasks();
-    void onNewTime(auto PeriodicTask, struct timeval aCurrentTime);
+    void onNewTime(struct timeval aCurrentTime);
     void processPackets();
-    void addPacket(Packet pkt);
+    void addPacket(std::unique_ptr<Packet> pkt);
 
 private:
-    // Private constructor.
-    TaskManager() = default;
-
     // current time
     timeval currentTime_;
 
@@ -60,10 +41,10 @@ private:
     std::thread packet_thread_;
 
     // Map containing managed periodic tasks
-    std::map<time_t, std::vector<std::unique_ptr<PeriodicTask>>> tasks_;
+    std::map<time_t, std::pair<std::vector<std::unique_ptr<Packet>>, std::vector<std::unique_ptr<PeriodicTask>>>> packets_tasks_map_;
 
     // Queue of packets to be processed
-    std::queue<std::unique_ptr<Packet>> packet_queue_;
+    std::queue<std::unique_ptr<Packet>> incoming_packet_queue_;
 
     // Condition variable used to signal the task thread to wake up
     std::condition_variable packet_queue_cv_;

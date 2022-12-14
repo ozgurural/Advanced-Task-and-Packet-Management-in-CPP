@@ -6,8 +6,8 @@
 #include "TaskManager.h"
 
 int main() {
-    // Get a reference to the TaskManager instance.
-    auto& task_manager = TaskManager::getInstance();
+    // Create an object of type TaskManager
+    TaskManager task_manager;
 
     // Start all tasks
     task_manager.startAllTasks();

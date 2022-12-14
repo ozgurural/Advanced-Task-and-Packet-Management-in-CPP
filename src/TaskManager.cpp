@@ -13,16 +13,16 @@ void TaskManager::processPackets() {
     while (true) {
         // Wait for the next packet to be available in the queue
         std::unique_lock<std::mutex> lock(packet_queue_mutex_);
-        packet_queue_cv_.wait(lock, [this] { return !packet_queue_.empty(); });
+        packet_queue_cv_.wait(lock, [this] { return !incoming_packet_queue_.empty(); });
 
         // Pop the next packet from the queue
-        auto pkt = packet_queue_.front();
-        packet_queue_.pop();
+        auto pkt = incoming_packet_queue_.front();
+        incoming_packet_queue_.pop();
         lock.unlock();
 
         // If the packet has a new timestamp, call onNewTime()
         if (currentTime_.tv_sec != pkt.time.tv_sec) {
-            onNewTime(pkt.time.);
+            onNewTime(pkt.time);
         }
 
         // Process the packet.
@@ -37,10 +37,11 @@ void TaskManager::addPacket(Packet pkt) {
 }
 
 void TaskManager::onNewTime(struct timeval aCurrentTime) {
+    std::lock_guard<std::mutex> lock(mutex_);
     currentTime_ = aCurrentTime;
 
     // Update the PeriodicTask objects in the TaskManager
-    TaskManager::getInstance().setInterval(PeriodicTask, aCurrentTime);
+    // TaskManager::getInstance().setInterval(PeriodicTask, aCurrentTime);
 }
 
 // Initialize the static instance variable.
@@ -60,7 +61,7 @@ void TaskManager::addTask() {
     tasks_[interval].emplace_back(std::move(task));
 }
 
-//     std::map<int, std::vector<std::unique_ptr<PeriodicTask>>> tasks_;
+// std::map<int, std::vector<std::unique_ptr<PeriodicTask>>> tasks_;
 std::map<time_t, std::vector<std::unique_ptr<PeriodicTask>>>&
 TaskManager::getTasks() {
     std::lock_guard<std::mutex> lock(mutex_);
