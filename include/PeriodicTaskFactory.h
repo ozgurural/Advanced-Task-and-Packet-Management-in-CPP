@@ -27,16 +27,6 @@ public:
         int interval,
         const std::function<void(std::unique_ptr<Packet>&)> task);
 
-    auto getLastExecutedTime() const { return last_executed_time_; }
-
-    // Changes the interval of a periodic task.
-    void setInterval(double interval, const std::function<void(std::unique_ptr<Packet>&)>& func);
-
-    void execute();
-
-    void setLastExecutedTime(
-        std::chrono::time_point<std::chrono::system_clock> point);
-
 private:
     // Private constructor.
     PeriodicTaskFactory() {}
@@ -47,14 +37,6 @@ private:
 
     // Private static member variable to store the instance.
     static std::unique_ptr<PeriodicTaskFactory> periodicTaskFactoryInstance;
-
-    // Mutex for thread-safety
-    std::mutex mutex_;
-
-    // Variable to store the last time a task was executed
-    std::chrono::time_point<std::chrono::system_clock> last_executed_time_;
-    double interval_{};
-    std::function<void()> task_;
 };
 
 static std::unique_ptr<PeriodicTaskFactory> periodicTaskFactoryInstance;

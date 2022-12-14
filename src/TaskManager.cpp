@@ -41,9 +41,6 @@ void TaskManager::addPacket(std::unique_ptr<Packet> packet) {
 void TaskManager::onNewTime(struct timeval aCurrentTime) {
     std::lock_guard<std::mutex> lock(mutex_);
     currentTime_ = aCurrentTime;
-
-    // Update the PeriodicTask objects in the TaskManager
-    // TaskManager::getInstance().setInterval(PeriodicTask, aCurrentTime);
 }
 
 // Initialize the static instance variable.

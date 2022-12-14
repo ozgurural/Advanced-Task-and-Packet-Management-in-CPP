@@ -12,7 +12,8 @@
 class PeriodicTask {
 public:
     // Constructor that takes a lambda function and an integer as arguments
-    PeriodicTask(double interval, const std::function<void(std::unique_ptr<Packet>&)> task)
+    PeriodicTask(double interval,
+                 const std::function<void(std::unique_ptr<Packet>&)> task)
         : last_executed_time_(std::chrono::steady_clock::now()),
           task_(task),
           interval_(0),

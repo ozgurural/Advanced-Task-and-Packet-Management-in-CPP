@@ -14,7 +14,8 @@ void PeriodicTask::setInterval(double interval) {
     interval_ = interval;
 }
 
-void PeriodicTask::setFunction(const std::function<void(std::unique_ptr<Packet>&)>& func)  {
+void PeriodicTask::setFunction(
+    const std::function<void(std::unique_ptr<Packet>&)>& func) {
     std::lock_guard<std::mutex> lock(mutex_);
     task_ = func;
 }
