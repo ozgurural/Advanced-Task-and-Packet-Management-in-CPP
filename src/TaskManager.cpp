@@ -33,7 +33,7 @@ void TaskManager::processPackets() {
 
 void TaskManager::addPacket(std::unique_ptr<Packet> packet) {
     std::lock_guard<std::mutex> lock(packet_queue_mutex_);
-    packets_and_tasks_map_[packet.get()->time.tv_sec].first.emplace_back(
+    packets_and_tasks_map_[packet->time.tv_sec].first.emplace_back(
         std::move(packet));
     packet_queue_cv_.notify_one();
 }

@@ -1,8 +1,6 @@
 //  main.cpp
 
 #include <iostream>
-#include <memory>
-
 #include "TaskManager.h"
 
 int main() {

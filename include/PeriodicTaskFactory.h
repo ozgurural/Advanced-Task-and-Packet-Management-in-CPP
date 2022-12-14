@@ -11,6 +11,10 @@
 
 class PeriodicTaskFactory {
 public:
+    // Private copy constructor and assignment operator.
+    PeriodicTaskFactory(const PeriodicTaskFactory&) = delete;
+    PeriodicTaskFactory& operator=(const PeriodicTaskFactory&) = delete;
+
     // Get a reference to the TaskManager instance.
     static PeriodicTaskFactory& getInstance() {
         // If the instance hasn't been created yet, create it.
@@ -25,15 +29,11 @@ public:
 
     static std::unique_ptr<PeriodicTask> createPeriodicTask(
         int interval,
-        const std::function<void(std::unique_ptr<Packet>&)> task);
+        const std::function<void(std::unique_ptr<Packet>&)>& task);
 
 private:
     // Private constructor.
-    PeriodicTaskFactory() {}
-
-    // Private copy constructor and assignment operator.
-    PeriodicTaskFactory(const PeriodicTaskFactory&) = delete;
-    PeriodicTaskFactory& operator=(const PeriodicTaskFactory&) = delete;
+    PeriodicTaskFactory() = default;
 
     // Private static member variable to store the instance.
     static std::unique_ptr<PeriodicTaskFactory> periodicTaskFactoryInstance;
