@@ -2,10 +2,10 @@
 #define PERIODIC_TASK_FACTORY_H
 
 #include <chrono>
-#include <map>
-#include <mutex>
-#include <memory>
 #include <functional>
+#include <map>
+#include <memory>
+#include <mutex>
 
 #include "PeriodicTask.h"
 
@@ -15,14 +15,17 @@ public:
     static PeriodicTaskFactory& getInstance() {
         // If the instance hasn't been created yet, create it.
         if (!periodicTaskFactoryInstance) {
-            periodicTaskFactoryInstance = std::unique_ptr<PeriodicTaskFactory>(new PeriodicTaskFactory());
+            periodicTaskFactoryInstance =
+                std::unique_ptr<PeriodicTaskFactory>(new PeriodicTaskFactory());
         }
 
         // Return a reference to the instance.
         return *periodicTaskFactoryInstance;
     }
 
-    static std::unique_ptr<PeriodicTask> createPeriodicTask(int interval, const std::function<void()>& task);
+    static std::unique_ptr<PeriodicTask> createPeriodicTask(
+        int interval,
+        const std::function<void()>& task);
 
     auto getLastExecutedTime() const { return last_executed_time_; }
 
@@ -31,7 +34,8 @@ public:
 
     void execute();
 
-    void setLastExecutedTime(std::chrono::time_point<std::chrono::system_clock> point);
+    void setLastExecutedTime(
+        std::chrono::time_point<std::chrono::system_clock> point);
 
 private:
     // Private constructor.
@@ -55,4 +59,4 @@ private:
 
 static std::unique_ptr<PeriodicTaskFactory> periodicTaskFactoryInstance;
 
-#endif // PERIODIC_TASK_FACTORY_H
+#endif  // PERIODIC_TASK_FACTORY_H

@@ -1,11 +1,11 @@
 //  main.cpp
 
-#include "TaskManager.h"
 #include <iostream>
-#include <memory>   
+#include <memory>
+
+#include "TaskManager.h"
 
 int main() {
-
     // Get a reference to the TaskManager instance.
     auto& task_manager = TaskManager::getInstance();
 

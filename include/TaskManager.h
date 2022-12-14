@@ -1,17 +1,16 @@
 #ifndef TASK_MANAGER_H
 #define TASK_MANAGER_H
 
-#include <map>
-#include <vector>
-#include <mutex>
-#include <memory>
-#include <thread>
-#include <queue>
 #include <condition_variable>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <thread>
+#include <vector>
 
-
-#include "PeriodicTaskFactory.h"
 #include "Packet.h"
+#include "PeriodicTaskFactory.h"
 
 class TaskManager {
 public:
@@ -23,7 +22,8 @@ public:
     static TaskManager& getInstance() {
         // If the instance hasn't been created yet, create it.
         if (!taskManagerInstance) {
-            taskManagerInstance = std::unique_ptr<TaskManager>(new TaskManager());
+            taskManagerInstance =
+                std::unique_ptr<TaskManager>(new TaskManager());
         }
 
         // Return a reference to the instance.
@@ -37,13 +37,17 @@ public:
     void setInterval(PeriodicTask& task, int interval_sec);
     void startAllTasks();
     void stopAllTasks();
-    void onNewTime(auto PeriodicTask, struct timeval aCurrentTime );
+    void onNewTime(auto PeriodicTask, struct timeval aCurrentTime);
     void processPackets();
+    void addPacket(Packet pkt);
 
 private:
     // Private constructor.
     TaskManager() = default;
-    
+
+    // current time
+    timeval currentTime_;
+
     // Private static member variable to store the instance.
     static std::unique_ptr<TaskManager> taskManagerInstance;
 
@@ -56,7 +60,7 @@ private:
     std::thread packet_thread_;
 
     // Map containing managed periodic tasks
-    std::map<int, std::vector<std::unique_ptr<PeriodicTask>>> tasks_;
+    std::map<time_t, std::vector<std::unique_ptr<PeriodicTask>>> tasks_;
 
     // Queue of packets to be processed
     std::queue<std::unique_ptr<Packet>> packet_queue_;
@@ -64,8 +68,7 @@ private:
     // Condition variable used to signal the task thread to wake up
     std::condition_variable packet_queue_cv_;
 
-
     void taskThreadFunc();
 };
 
-#endif // TASK_MANAGER_H
+#endif  // TASK_MANAGER_H

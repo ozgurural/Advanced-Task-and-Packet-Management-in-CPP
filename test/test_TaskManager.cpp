@@ -1,5 +1,5 @@
-#include "TaskManager.h"
 #include "PeriodicTaskFactory.h"
+#include "TaskManager.h"
 #include "gtest/gtest.h"
 
 TEST(TaskManagerTest, AddTask) {

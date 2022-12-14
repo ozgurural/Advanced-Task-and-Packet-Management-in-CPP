@@ -2,16 +2,19 @@
 #define PERIODIC_TASK_H
 
 #include <chrono>
+#include <functional>
 #include <map>
 #include <mutex>
-#include <functional>
 
 class PeriodicTask {
 public:
     // Constructor that takes a lambda function and an integer as arguments
-    PeriodicTask(double interval, const std::function<void()> &task)
-            : last_executed_time_(std::chrono::steady_clock::now()), task_(task), interval_(0), func_(task), id_(next_id_++) {
-    }
+    PeriodicTask(double interval, const std::function<void()>& task)
+        : last_executed_time_(std::chrono::steady_clock::now()),
+          task_(task),
+          interval_(0),
+          func_(task),
+          id_(next_id_++) {}
 
     // get the unique id of the task
     int getId() const { return id_; }
@@ -29,7 +32,8 @@ public:
 
     void execute();
 
-    void setLastExecutedTime(std::chrono::time_point<std::chrono::steady_clock> point);
+    void setLastExecutedTime(
+        std::chrono::time_point<std::chrono::steady_clock> point);
 
 private:
     // unique id of the task
@@ -48,7 +52,6 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> last_executed_time_;
     double interval_;
     std::function<void()> func_ = nullptr;
-    
 };
 
-#endif // PERIODIC_TASK_H
+#endif  // PERIODIC_TASK_H
