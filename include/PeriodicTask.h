@@ -12,7 +12,7 @@
 class PeriodicTask {
 public:
     // Constructor that takes a lambda function and an integer as arguments
-    PeriodicTask(double interval,
+    PeriodicTask(long interval,
                  const std::function<void(std::unique_ptr<Packet>&)>& task)
         : last_executed_time_(std::chrono::steady_clock::now()),
           task_(task),
@@ -22,7 +22,10 @@ public:
     // get the unique id of the task
     int getId() const { return id_; }
 
-    auto getLastExecutedTime() const { return last_executed_time_; }
+    std::chrono::time_point<std::chrono::steady_clock> getLastExecutedTime()
+        const {
+        return last_executed_time_;
+    }
 
     // Changes the interval of a periodic task.
     void setInterval(double interval);
@@ -53,7 +56,7 @@ private:
 
     // Variable to store the last time a task was executed
     std::chrono::time_point<std::chrono::steady_clock> last_executed_time_;
-    double interval_;
+    long interval_;
 };
 
 #endif  // PERIODIC_TASK_H

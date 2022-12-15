@@ -15,14 +15,17 @@
 class TaskManager {
 public:
     static std::chrono::time_point<std::chrono::steady_clock> getTimeSource();
+
     void addTask(std::unique_ptr<PeriodicTask>);
     void removeTask(PeriodicTask task);
-    void setInterval(PeriodicTask& task, int interval_sec);
+    void setPeriodicTaskInterval(PeriodicTask& task, int interval_sec);
+
+    void addPacket(std::unique_ptr<Packet> pkt);
+
     void startAllTasks();
     void stopAllTasks();
     void onNewTime(struct timeval aCurrentTime);
     void processPackets();
-    void addPacket(std::unique_ptr<Packet> pkt);
 
 private:
     // current time

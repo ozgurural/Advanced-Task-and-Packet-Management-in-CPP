@@ -70,7 +70,8 @@ void TaskManager::removeTask(PeriodicTask task) {
         task_vec.end());
 }
 
-void TaskManager::setInterval(PeriodicTask& task, int interval_sec) {
+void TaskManager::setPeriodicTaskInterval(PeriodicTask& task,
+                                          int interval_sec) {
     std::lock_guard<std::mutex> lock(mutex_);
 
     // Update the task interval
