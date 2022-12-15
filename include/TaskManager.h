@@ -14,7 +14,7 @@
 
 class TaskManager {
 public:
-    static std::chrono::time_point<std::chrono::steady_clock> getTimeSource();
+    std::chrono::time_point<std::chrono::steady_clock> getTimeSource();
 
     void addTask(std::unique_ptr<PeriodicTask>);
     void removeTask(PeriodicTask task);
@@ -26,6 +26,8 @@ public:
     void stopAllTasks();
     void onNewTime(struct timeval aCurrentTime);
     void processPackets();
+    auto& getPacketsAndTasks() { return packets_and_tasks_map_; }
+    timeval getCurrentTime() { return currentTime_; }
 
 private:
     // current time
