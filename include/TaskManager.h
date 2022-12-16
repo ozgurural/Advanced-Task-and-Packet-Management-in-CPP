@@ -21,7 +21,7 @@ public:
     void removeTask(PeriodicTask task);
     void setPeriodicTaskInterval(PeriodicTask& task, int interval_sec);
 
-    void addPacket(std::unique_ptr<Packet> pkt);
+    void addPacket(std::shared_ptr<Packet>);
 
     void startAllTasks();
     void stopAllTasks();
@@ -46,7 +46,7 @@ private:
 
     // Map containing managed periodic tasks and Packages
     std::map<time_t,
-             std::pair<std::vector<std::unique_ptr<Packet>>,
+             std::pair<std::vector<std::shared_ptr<Packet>>,
                        std::vector<std::unique_ptr<PeriodicTask>>>>
         packets_and_tasks_map_;
 

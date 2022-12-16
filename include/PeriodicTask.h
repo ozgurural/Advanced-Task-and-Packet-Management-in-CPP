@@ -13,7 +13,7 @@ class PeriodicTask {
 public:
     // Constructor that takes a lambda function and an integer as arguments
     PeriodicTask(long interval,
-                 const std::function<void(std::unique_ptr<Packet>&)>& task)
+                 const std::function<void(std::shared_ptr<Packet>&)>& task)
         : last_executed_time_(std::chrono::steady_clock::now()),
           task_(task),
           interval_(interval),
@@ -32,11 +32,11 @@ public:
 
     auto getInterval() const { return interval_; }
 
-    void setFunction(const std::function<void(std::unique_ptr<Packet>&)>& func);
+    void setFunction(const std::function<void(std::shared_ptr<Packet>&)>& func);
 
     bool isTimeToExecute();
 
-    void execute(std::unique_ptr<Packet>&);
+    void execute(std::shared_ptr<Packet>&);
 
     void setLastExecutedTime(
         std::chrono::time_point<std::chrono::steady_clock> point);
@@ -49,7 +49,7 @@ private:
     static int next_id_;
 
     // periodic task
-    std::function<void(std::unique_ptr<Packet>&)> task_;
+    std::function<void(std::shared_ptr<Packet>&)> task_;
 
     // Mutex for thread-safety
     std::mutex mutex_;

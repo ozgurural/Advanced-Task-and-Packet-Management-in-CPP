@@ -15,12 +15,12 @@ void PeriodicTask::setInterval(double interval) {
 }
 
 void PeriodicTask::setFunction(
-    const std::function<void(std::unique_ptr<Packet>&)>& func) {
+    const std::function<void(std::shared_ptr<Packet>&)>& func) {
     std::lock_guard<std::mutex> lock(mutex_);
     task_ = func;
 }
 
-void PeriodicTask::execute(std::unique_ptr<Packet>& packet) {
+void PeriodicTask::execute(std::shared_ptr<Packet>& packet) {
     std::lock_guard<std::mutex> lock(mutex_);
     task_(packet);
     last_executed_time_ = std::chrono::steady_clock::now();

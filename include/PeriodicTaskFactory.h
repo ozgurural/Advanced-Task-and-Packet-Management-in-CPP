@@ -27,9 +27,9 @@ public:
         return *periodicTaskFactoryInstance;
     }
 
-    static std::unique_ptr<PeriodicTask> createPeriodicTask(
+    static std::shared_ptr<PeriodicTask> createPeriodicTask(
         int interval,
-        const std::function<void(std::unique_ptr<Packet>&)>& task);
+        const std::function<void(std::shared_ptr<Packet>&)>& task);
 
 private:
     // Private constructor.

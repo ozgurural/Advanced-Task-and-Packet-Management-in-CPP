@@ -21,7 +21,7 @@ std::string GetCurrentTimeAsString();
 class Log {
 public:
     // Constructor
-    Log(LogLevel level) : m_level(level) {}
+    explicit Log(LogLevel level) : m_level(level) {}
 
     // Destructor that outputs the log message to the standard output stream
     ~Log() {

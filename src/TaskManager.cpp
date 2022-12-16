@@ -15,7 +15,7 @@ TaskManager::getTimeSource() {
 // Method to process packets from the current source until there are no more
 // packets.
 void TaskManager::processPackets() {
-    while (true) {
+    while (!stop_) {
         // Wait for the next packet to be available in the queue
         std::unique_lock<std::mutex> lock(packet_queue_mutex_);
         // Log waiting for the next packet
@@ -24,6 +24,7 @@ void TaskManager::processPackets() {
             lock, [this] { return !incoming_packet_queue_.empty() || stop_; });
 
         if (stop_) {
+            LOG(INFO) << "processPackets returning due to stop flag being set";
             return;
         }
 
@@ -39,18 +40,20 @@ void TaskManager::processPackets() {
 
         // Add packet to the packets_and_tasks_map_
         addPacket(std::move(packet));
+        LOG(INFO) << "Packet processed";
+        packet_queue_cv_.notify_one();
     }
 }
 
-
-void TaskManager::addPacket(std::unique_ptr<Packet> packet) {
+void TaskManager::addPacket(std::shared_ptr<Packet> packet) {
     std::lock_guard<std::mutex> lock(packet_queue_mutex_);
     // Log that a packet is being added
     LOG(INFO) << "Adding packet " << packet->time.tv_sec << " seconds";
-    packets_and_tasks_map_[packet->time.tv_sec].first.emplace_back(
-        std::move(packet));
+    packets_and_tasks_map_[packet->time.tv_sec].first.emplace_back(packet);
 
-    packet_queue_cv_.notify_one();
+    LOG(INFO) << "Packet added";
+    LOG(INFO) << "Number of packets added: "
+              << packets_and_tasks_map_[packet->time.tv_sec].first.size();
 }
 
 void TaskManager::onNewTime(struct timeval aCurrentTime) {
@@ -114,19 +117,31 @@ void TaskManager::startAllTasks() {
 void TaskManager::stopAllTasks() {
     // Log that the task manager is stopping
     std::lock_guard<std::mutex> lock(packet_queue_mutex_);
-    LOG(INFO) << "Stopping task manager";
     stop_ = true;
     packet_queue_cv_.notify_one();
+
+    // Log that the task thread is stopping
+    LOG(INFO) << "Stopping task thread";
     task_thread_.join();
+    // Log that task thread has stopped
+    LOG(INFO) << "Task thread stopped";
+
+    // Log that the packet thread is stopping
+    LOG(INFO) << "Stopping packet thread";
     packet_thread_.join();
+    // Log that packet thread has stopped
+    LOG(INFO) << "Packet thread stopped";
 }
 
 void TaskManager::taskThreadFunc() {
-    while (true) {
+    while (!stop_) {
         // Use the time source function to get the current time.
         std::chrono::time_point<std::chrono::steady_clock> now =
             getTimeSource();
         std::lock_guard<std::mutex> lock(mutex_);
+
+        // Log that the task thread is running
+        LOG(INFO) << "Task thread running";
 
         // std::map<time_t, std::pair<std::vector<std::unique_ptr<Packet>>,
         // std::vector<std::unique_ptr<PeriodicTask>>>> packets_and_tasks_map_;
@@ -146,8 +161,8 @@ void TaskManager::taskThreadFunc() {
                 // Iterate over the packets and execute the task with each
                 // packet
                 for (auto& packet : packets_and_tasks.first) {
-                            // Log that the task manager is executing tasks
-        LOG(INFO) << "Executing tasks";
+                    // Log that the task manager is executing tasks
+                    LOG(INFO) << "Executing tasks";
                     task->execute(packet);
                 }
                 // Update the last_executed_time
@@ -157,6 +172,6 @@ void TaskManager::taskThreadFunc() {
 
         // Sleep for a short time to allow other threads to run
         // @todo - make this time configurable or use a condition variable
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
     }
 }

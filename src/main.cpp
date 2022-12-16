@@ -9,11 +9,11 @@ int main() {
 
     struct timeval packet_time = {1000, 0};
     std::vector<uint8_t> packet_data = {1, 2, 3, 4};
-    std::unique_ptr<Packet> packet =
-        std::make_unique<Packet>(packet_time, packet_data);
+    std::shared_ptr<Packet> packet =
+        std::make_shared<Packet>(packet_time, packet_data);
 
     // Add a packet to the queue.
-    task_manager.addPacket(std::move(packet));
+    task_manager.addPacket(packet);
 
     auto& pt = task_manager.getPacketsAndTasks();
     // Check that the queue contains the expected packet.
@@ -21,7 +21,7 @@ int main() {
     std::cout << it->second.first.front()->time.tv_sec << std::endl;
 
     // Create a function that prints the packet data
-    auto print_packet_data = [](std::unique_ptr<Packet>& packet) {
+    auto print_packet_data = [](std::shared_ptr<Packet>& packet) {
         std::cout << "Packet data: ";
         for (auto& byte : packet->data) {
             std::cout << std::hex << (int)byte << " ";
@@ -47,6 +47,9 @@ int main() {
 
     // wait until enter is pressed
     std::cin.get();
+
+    // Log Stop all tasks will be called from main
+    LOG(INFO) << "Stop all tasks will be called from main";
 
     // Stop all tasks
     task_manager.stopAllTasks();
