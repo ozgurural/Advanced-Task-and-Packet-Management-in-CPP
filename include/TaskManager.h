@@ -13,21 +13,26 @@
 #include "Packet.h"
 #include "PeriodicTaskFactory.h"
 
+struct PacketsAndTasks {
+    std::vector<std::shared_ptr<Packet>> packets;
+    std::vector<std::unique_ptr<PeriodicTask>> tasks;
+};
+
 class TaskManager {
 public:
     std::chrono::time_point<std::chrono::steady_clock> getTimeSource();
 
     void addTask(std::unique_ptr<PeriodicTask>);
     void removeTask(PeriodicTask task);
-    void setPeriodicTaskInterval(PeriodicTask& task, int interval_sec);
+    void setPeriodicTaskInterval(PeriodicTask& task, const time_t interval_sec);
 
-    void addPacket(std::shared_ptr<Packet>);
+    void addPacket(const std::shared_ptr<Packet>&);
 
     void startAllTasks();
     void stopAllTasks();
     void onNewTime(struct timeval aCurrentTime);
     void processPackets();
-    auto& getPacketsAndTasks() { return packets_and_tasks_map_; }
+    std::map<time_t, PacketsAndTasks>& getPacketsAndTasks();
     timeval getCurrentTime() { return currentTime_; }
     // Destructor
     ~TaskManager();
@@ -45,10 +50,7 @@ private:
     std::thread packet_thread_;
 
     // Map containing managed periodic tasks and Packages
-    std::map<time_t,
-             std::pair<std::vector<std::shared_ptr<Packet>>,
-                       std::vector<std::unique_ptr<PeriodicTask>>>>
-        packets_and_tasks_map_;
+    std::map<time_t, PacketsAndTasks> packets_and_tasks_map_;
 
     // Queue of packets to be processed
     std::queue<std::unique_ptr<Packet>> incoming_packet_queue_;

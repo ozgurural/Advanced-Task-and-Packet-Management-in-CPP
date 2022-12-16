@@ -23,11 +23,6 @@ void TaskManager::processPackets() {
         packet_queue_cv_.wait(
             lock, [this] { return !incoming_packet_queue_.empty() || stop_; });
 
-        if (stop_) {
-            LOG(INFO) << "processPackets returning due to stop flag being set";
-            return;
-        }
-
         // Pop the next packet from the queue
         auto packet = std::move(incoming_packet_queue_.front());
         incoming_packet_queue_.pop();
@@ -45,15 +40,15 @@ void TaskManager::processPackets() {
     }
 }
 
-void TaskManager::addPacket(std::shared_ptr<Packet> packet) {
+void TaskManager::addPacket(const std::shared_ptr<Packet>& packet) {
     std::lock_guard<std::mutex> lock(packet_queue_mutex_);
     // Log that a packet is being added
     LOG(INFO) << "Adding packet " << packet->time.tv_sec << " seconds";
-    packets_and_tasks_map_[packet->time.tv_sec].first.emplace_back(packet);
+    packets_and_tasks_map_[packet->time.tv_sec].packets.emplace_back(packet);
 
     LOG(INFO) << "Packet added";
     LOG(INFO) << "Number of packets added: "
-              << packets_and_tasks_map_[packet->time.tv_sec].first.size();
+              << packets_and_tasks_map_[packet->time.tv_sec].packets.size();
 }
 
 void TaskManager::onNewTime(struct timeval aCurrentTime) {
@@ -71,7 +66,7 @@ void TaskManager::addTask(std::unique_ptr<PeriodicTask> task) {
     LOG(INFO) << "Adding task " << task->getId() << " with interval "
               << interval << " seconds";
 
-    packets_and_tasks_map_[interval].second.emplace_back(std::move(task));
+    packets_and_tasks_map_[interval].tasks.emplace_back(std::move(task));
 }
 
 void TaskManager::removeTask(PeriodicTask task) {
@@ -83,7 +78,7 @@ void TaskManager::removeTask(PeriodicTask task) {
 
     // tasks_ is a map from interval to vector of tasks
     // get the vector of tasks for the given interval
-    auto& task_vec = packets_and_tasks_map_[task.getInterval()].second;
+    auto& task_vec = packets_and_tasks_map_[task.getInterval()].tasks;
 
     // find the task with the matching id and remove it
     task_vec.erase(
@@ -95,15 +90,31 @@ void TaskManager::removeTask(PeriodicTask task) {
 }
 
 void TaskManager::setPeriodicTaskInterval(PeriodicTask& task,
-                                          int interval_sec) {
+                                          const time_t interval) {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    // Log that a task is being updated
-    LOG(INFO) << "Updating task " << task.getId() << " with interval "
-              << interval_sec << " seconds";
+    // Log that the interval of a task is being changed
+    LOG(INFO) << "Changing interval of task " << task.getId() << " from "
+              << task.getInterval() << " seconds to " << interval << " seconds";
 
-    // Update the task interval
-    task.setInterval(interval_sec);
+    // tasks_ is a map from interval to vector of tasks
+    // get the vector of tasks for the old interval
+    auto& task_vec = packets_and_tasks_map_[task.getInterval()].tasks;
+
+    // find the task with the matching id and remove it from the vector
+    task_vec.erase(
+        std::remove_if(task_vec.begin(), task_vec.end(),
+                       [&task](const std::unique_ptr<PeriodicTask>& t) {
+                           return t->getId() == task.getId();
+                       }),
+        task_vec.end());
+
+    // Set the new interval for the task
+    task.setInterval(interval);
+
+    // Add the task to the vector of tasks for the new interval
+    packets_and_tasks_map_[interval].tasks.emplace_back(
+        std::make_unique<PeriodicTask>(task.getInterval(), task.getFunction()));
 }
 
 void TaskManager::startAllTasks() {
@@ -133,6 +144,10 @@ void TaskManager::stopAllTasks() {
     LOG(INFO) << "Packet thread stopped";
 }
 
+std::map<time_t, PacketsAndTasks>& TaskManager::getPacketsAndTasks() {
+    return packets_and_tasks_map_;
+}
+
 void TaskManager::taskThreadFunc() {
     while (!stop_) {
         // Use the time source function to get the current time.
@@ -143,14 +158,13 @@ void TaskManager::taskThreadFunc() {
         // Log that the task thread is running
         LOG(INFO) << "Task thread running";
 
-        // std::map<time_t, std::pair<std::vector<std::unique_ptr<Packet>>,
-        // std::vector<std::unique_ptr<PeriodicTask>>>> packets_and_tasks_map_;
         // Create a duration that represents the interval in seconds
         auto interval = std::chrono::duration<double>(currentTime_.tv_sec);
+        // Get the PacketsAndTasks struct for the current interval
         auto& packets_and_tasks = packets_and_tasks_map_[currentTime_.tv_sec];
 
         // Iterate over the vector of tasks
-        for (auto& task : packets_and_tasks.second) {
+        for (auto& task : packets_and_tasks.tasks) {
             // Compute the elapsed time since the last execution of the task
             auto elapsed_time =
                 std::chrono::duration_cast<std::chrono::duration<double>>(
@@ -160,7 +174,7 @@ void TaskManager::taskThreadFunc() {
             if (elapsed_time >= interval) {
                 // Iterate over the packets and execute the task with each
                 // packet
-                for (auto& packet : packets_and_tasks.first) {
+                for (auto& packet : packets_and_tasks.packets) {
                     // Log that the task manager is executing tasks
                     LOG(INFO) << "Executing tasks";
                     task->execute(packet);
@@ -172,6 +186,6 @@ void TaskManager::taskThreadFunc() {
 
         // Sleep for a short time to allow other threads to run
         // @todo - make this time configurable or use a condition variable
-        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }

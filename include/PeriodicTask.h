@@ -28,7 +28,7 @@ public:
     }
 
     // Changes the interval of a periodic task.
-    void setInterval(double interval);
+    void setInterval(long interval);
 
     auto getInterval() const { return interval_; }
 
@@ -40,6 +40,8 @@ public:
 
     void setLastExecutedTime(
         std::chrono::time_point<std::chrono::steady_clock> point);
+
+    std::function<void(std::shared_ptr<Packet>&)> getFunction();
 
 private:
     // unique id of the task

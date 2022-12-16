@@ -9,7 +9,7 @@ void PeriodicTask::setLastExecutedTime(
     last_executed_time_ = point;
 }
 
-void PeriodicTask::setInterval(double interval) {
+void PeriodicTask::setInterval(long interval) {
     std::lock_guard<std::mutex> lock(mutex_);
     interval_ = interval;
 }
@@ -32,4 +32,9 @@ bool PeriodicTask::isTimeToExecute() {
     auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(
         now - last_executed_time_);
     return diff.count() >= interval_;
+}
+
+std::function<void(std::shared_ptr<Packet>&)> PeriodicTask::getFunction() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return task_;
 }

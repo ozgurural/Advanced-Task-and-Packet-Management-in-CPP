@@ -15,10 +15,14 @@ int main() {
     // Add a packet to the queue.
     task_manager.addPacket(packet);
 
-    auto& pt = task_manager.getPacketsAndTasks();
+    std::map<time_t, PacketsAndTasks>& pt = task_manager.getPacketsAndTasks();
     // Check that the queue contains the expected packet.
     auto it = pt.begin();
-    std::cout << it->second.first.front()->time.tv_sec << std::endl;
+    std::cout << it->first << ": ";
+    for (auto& byte : it->second.packets.front()->data) {
+        std::cout << std::hex << (int)byte << " ";
+    }
+    std::cout << std::endl;
 
     // Create a function that prints the packet data
     auto print_packet_data = [](std::shared_ptr<Packet>& packet) {
