@@ -15,16 +15,16 @@
 
 struct PacketsAndTasks {
     std::vector<std::shared_ptr<Packet>> packets;
-    std::vector<std::unique_ptr<PeriodicTask>> tasks;
+    std::vector<std::shared_ptr<PeriodicTask>> tasks;
 };
 
 class TaskManager {
 public:
-    std::chrono::time_point<std::chrono::steady_clock> getTimeSource();
+    static std::chrono::time_point<std::chrono::steady_clock> getTimeSource();
 
-    void addTask(std::unique_ptr<PeriodicTask>);
+    void addTask(const std::shared_ptr<PeriodicTask>&);
     void removeTask(PeriodicTask task);
-    void setPeriodicTaskInterval(PeriodicTask& task, const time_t interval_sec);
+    void setPeriodicTaskInterval(PeriodicTask& task, time_t interval_sec);
 
     void addPacket(const std::shared_ptr<Packet>&);
 

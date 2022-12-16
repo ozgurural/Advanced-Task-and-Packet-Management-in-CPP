@@ -40,24 +40,23 @@ void TaskManager::processPackets() {
     }
 }
 
-void TaskManager::addPacket(const std::shared_ptr<Packet>& packet) {
-    std::lock_guard<std::mutex> lock(packet_queue_mutex_);
-    // Log that a packet is being added
-    LOG(INFO) << "Adding packet " << packet->time.tv_sec << " seconds";
-    packets_and_tasks_map_[packet->time.tv_sec].packets.emplace_back(packet);
-
-    LOG(INFO) << "Packet added";
-    LOG(INFO) << "Number of packets added: "
-              << packets_and_tasks_map_[packet->time.tv_sec].packets.size();
-}
-
 void TaskManager::onNewTime(struct timeval aCurrentTime) {
     std::lock_guard<std::mutex> lock(mutex_);
     currentTime_ = aCurrentTime;
     LOG(TRACE) << "New time: " << currentTime_.tv_sec << " seconds";
 }
 
-void TaskManager::addTask(std::unique_ptr<PeriodicTask> task) {
+void TaskManager::addPacket(const std::shared_ptr<Packet>& packet) {
+    std::lock_guard<std::mutex> lock(packet_queue_mutex_);
+    // Log that a packet is being added
+    LOG(INFO) << "Adding packet " << packet->time.tv_sec << " seconds";
+    packets_and_tasks_map_[packet->time.tv_sec].packets.emplace_back(packet);
+
+    LOG(INFO) << "Number of packets added: "
+              << packets_and_tasks_map_[packet->time.tv_sec].packets.size();
+}
+
+void TaskManager::addTask(const std::shared_ptr<PeriodicTask>& task) {
     std::lock_guard<std::mutex> lock(mutex_);
 
     auto interval = task->getInterval();
@@ -66,7 +65,14 @@ void TaskManager::addTask(std::unique_ptr<PeriodicTask> task) {
     LOG(INFO) << "Adding task " << task->getId() << " with interval "
               << interval << " seconds";
 
-    packets_and_tasks_map_[interval].tasks.emplace_back(std::move(task));
+    LOG(INFO) << "Number of packets before adding task: "
+              << packets_and_tasks_map_[interval].packets.size();
+
+    packets_and_tasks_map_[interval].tasks.emplace_back(task);
+
+    // After adding the task check packet size still same
+    LOG(INFO) << "Number of packets after adding task: "
+              << packets_and_tasks_map_[interval].packets.size();
 }
 
 void TaskManager::removeTask(PeriodicTask task) {
@@ -83,7 +89,7 @@ void TaskManager::removeTask(PeriodicTask task) {
     // find the task with the matching id and remove it
     task_vec.erase(
         std::remove_if(task_vec.begin(), task_vec.end(),
-                       [&task](const std::unique_ptr<PeriodicTask>& t) {
+                       [&task](const std::shared_ptr<PeriodicTask>& t) {
                            return t->getId() == task.getId();
                        }),
         task_vec.end());
@@ -104,7 +110,7 @@ void TaskManager::setPeriodicTaskInterval(PeriodicTask& task,
     // find the task with the matching id and remove it from the vector
     task_vec.erase(
         std::remove_if(task_vec.begin(), task_vec.end(),
-                       [&task](const std::unique_ptr<PeriodicTask>& t) {
+                       [&task](const std::shared_ptr<PeriodicTask>& t) {
                            return t->getId() == task.getId();
                        }),
         task_vec.end());
@@ -158,20 +164,13 @@ void TaskManager::taskThreadFunc() {
         // Log that the task thread is running
         LOG(INFO) << "Task thread running";
 
-        // Create a duration that represents the interval in seconds
-        auto interval = std::chrono::duration<double>(currentTime_.tv_sec);
         // Get the PacketsAndTasks struct for the current interval
         auto& packets_and_tasks = packets_and_tasks_map_[currentTime_.tv_sec];
 
         // Iterate over the vector of tasks
         for (auto& task : packets_and_tasks.tasks) {
-            // Compute the elapsed time since the last execution of the task
-            auto elapsed_time =
-                std::chrono::duration_cast<std::chrono::duration<double>>(
-                    now - task->getLastExecutedTime());
-
             // Check if the task needs to be executed
-            if (elapsed_time >= interval) {
+            if (task->isTimeToExecute()) {
                 // Iterate over the packets and execute the task with each
                 // packet
                 for (auto& packet : packets_and_tasks.packets) {
@@ -186,6 +185,6 @@ void TaskManager::taskThreadFunc() {
 
         // Sleep for a short time to allow other threads to run
         // @todo - make this time configurable or use a condition variable
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }

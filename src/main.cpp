@@ -15,6 +15,10 @@ int main() {
     // Add a packet to the queue.
     task_manager.addPacket(packet);
 
+    LOG(INFO) << "Number of packets added from main:"
+              << task_manager.getPacketsAndTasks()[packet->time.tv_sec]
+                     .packets.size();
+
     std::map<time_t, PacketsAndTasks>& pt = task_manager.getPacketsAndTasks();
     // Check that the queue contains the expected packet.
     auto it = pt.begin();
@@ -35,9 +39,10 @@ int main() {
 
     // Create periodic tasks which take interval and packet as arguments and
     // print them periodically
-    auto task1 = std::make_unique<PeriodicTask>(1, print_packet_data);
-    auto task2 = std::make_unique<PeriodicTask>(10, print_packet_data);
-    auto task3 = std::make_unique<PeriodicTask>(20, print_packet_data);
+    auto task1 = std::make_shared<PeriodicTask>(1000, print_packet_data);
+    auto task2 = std::make_shared<PeriodicTask>(1000, print_packet_data);
+    auto task3 = std::make_shared<PeriodicTask>(1000, print_packet_data);
+
 
     // Add the tasks to the task manager
     task_manager.addTask(std::move(task1));
