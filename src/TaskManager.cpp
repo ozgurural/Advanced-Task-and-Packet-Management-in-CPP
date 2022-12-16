@@ -1,4 +1,5 @@
 #include "TaskManager.h"
+#include <iostream>
 
 // Define the time_source_() function.
 std::chrono::time_point<std::chrono::steady_clock>
@@ -35,21 +36,24 @@ void TaskManager::addPacket(std::unique_ptr<Packet> packet) {
     std::lock_guard<std::mutex> lock(packet_queue_mutex_);
     packets_and_tasks_map_[packet->time.tv_sec].first.emplace_back(
         std::move(packet));
+
     packet_queue_cv_.notify_one();
 }
 
 void TaskManager::onNewTime(struct timeval aCurrentTime) {
     std::lock_guard<std::mutex> lock(mutex_);
     currentTime_ = aCurrentTime;
+    LOG(TRACE) << "New time: " << currentTime_.tv_sec << " seconds";
 }
-
-// Initialize the static instance variable.
-std::unique_ptr<TaskManager> TaskManager::taskManagerInstance;
 
 void TaskManager::addTask(std::unique_ptr<PeriodicTask> task) {
     std::lock_guard<std::mutex> lock(mutex_);
 
     auto interval = task->getInterval();
+
+    // Log that a task is being added
+    LOG(INFO) << "Adding task " << task->getId() << " with interval "
+              << interval << " seconds";
 
     packets_and_tasks_map_[interval].second.emplace_back(std::move(task));
 }

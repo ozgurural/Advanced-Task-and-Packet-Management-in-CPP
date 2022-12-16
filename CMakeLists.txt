@@ -17,6 +17,7 @@ set(SOURCES
     src/PeriodicTask.cpp
     src/TaskManager.cpp
     src/PeriodicTaskFactory.cpp
+    src/Logger.cpp
 )
 
 # Set the header files for the forescout executable
@@ -24,6 +25,7 @@ set(HEADERS
     include/PeriodicTask.h
     include/TaskManager.h
     include/PeriodicTaskFactory.h
+    include/Logger.h
 )
 
 # Add the forescout executable with the specified source and header files

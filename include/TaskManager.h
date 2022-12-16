@@ -9,12 +9,13 @@
 #include <thread>
 #include <vector>
 
+#include "Logger.h"
 #include "Packet.h"
 #include "PeriodicTaskFactory.h"
 
 class TaskManager {
 public:
-    std::chrono::time_point<std::chrono::steady_clock> getTimeSource();
+    static std::chrono::time_point<std::chrono::steady_clock> getTimeSource();
 
     void addTask(std::unique_ptr<PeriodicTask>);
     void removeTask(PeriodicTask task);
@@ -31,10 +32,7 @@ public:
 
 private:
     // current time
-    timeval currentTime_;
-
-    // Private static member variable to store the instance.
-    static std::unique_ptr<TaskManager> taskManagerInstance;
+    timeval currentTime_ = {0, 0};
 
     // Mutex for thread-safety
     std::mutex mutex_;
@@ -44,7 +42,7 @@ private:
     std::thread task_thread_;
     std::thread packet_thread_;
 
-    // Map containing managed periodic tasks
+    // Map containing managed periodic tasks and Packages
     std::map<time_t,
              std::pair<std::vector<std::unique_ptr<Packet>>,
                        std::vector<std::unique_ptr<PeriodicTask>>>>
