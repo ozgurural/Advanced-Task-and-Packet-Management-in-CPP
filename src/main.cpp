@@ -1,6 +1,5 @@
 //  main.cpp
 
-#include <iostream>
 #include "Logger.h"
 #include "TaskManager.h"
 
@@ -45,6 +44,9 @@ int main() {
 
     // Start all tasks
     task_manager.startAllTasks();
+
+    // wait until enter is pressed
+    std::cin.get();
 
     // Stop all tasks
     task_manager.stopAllTasks();

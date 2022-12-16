@@ -26,6 +26,7 @@ set(HEADERS
     include/TaskManager.h
     include/PeriodicTaskFactory.h
     include/Logger.h
+    include/Packet.h
 )
 
 # Add the forescout executable with the specified source and header files
@@ -41,7 +42,8 @@ set(TEST_SOURCES
 )
 
 # Add the test_TaskManager executable with the specified source files
-add_executable(test_TaskManager ${TEST_SOURCES})
+add_executable(test_TaskManager ${TEST_SOURCES} ${SOURCES} ${HEADERS})
 
 # Link the Google Test library to the test_TaskManager target
 target_link_libraries(test_TaskManager ${GTEST_BOTH_LIBRARIES})
+

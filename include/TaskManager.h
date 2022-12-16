@@ -15,7 +15,7 @@
 
 class TaskManager {
 public:
-    static std::chrono::time_point<std::chrono::steady_clock> getTimeSource();
+    std::chrono::time_point<std::chrono::steady_clock> getTimeSource();
 
     void addTask(std::unique_ptr<PeriodicTask>);
     void removeTask(PeriodicTask task);
@@ -29,6 +29,8 @@ public:
     void processPackets();
     auto& getPacketsAndTasks() { return packets_and_tasks_map_; }
     timeval getCurrentTime() { return currentTime_; }
+    // Destructor
+    ~TaskManager();
 
 private:
     // current time
@@ -55,6 +57,7 @@ private:
     std::condition_variable packet_queue_cv_;
 
     void taskThreadFunc();
+    bool stop_ = false;
 };
 
 #endif  // TASK_MANAGER_H

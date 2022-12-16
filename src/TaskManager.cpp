@@ -1,5 +1,9 @@
 #include "TaskManager.h"
-#include <iostream>
+
+TaskManager::~TaskManager() {
+    // Clean up resources and stop any threads
+    stopAllTasks();
+}
 
 // Define the time_source_() function.
 std::chrono::time_point<std::chrono::steady_clock>
@@ -14,26 +18,35 @@ void TaskManager::processPackets() {
     while (true) {
         // Wait for the next packet to be available in the queue
         std::unique_lock<std::mutex> lock(packet_queue_mutex_);
+        // Log waiting for the next packet
+        LOG(INFO) << "Waiting for the next packet";
         packet_queue_cv_.wait(
-            lock, [this] { return !incoming_packet_queue_.empty(); });
+            lock, [this] { return !incoming_packet_queue_.empty() || stop_; });
+
+        if (stop_) {
+            return;
+        }
 
         // Pop the next packet from the queue
-        auto packet = *incoming_packet_queue_.front();
+        auto packet = std::move(incoming_packet_queue_.front());
         incoming_packet_queue_.pop();
         lock.unlock();
 
         // If the packet has a new timestamp, call onNewTime()
-        if (currentTime_.tv_sec != packet.time.tv_sec) {
-            onNewTime(packet.time);
+        if (currentTime_.tv_sec != packet->time.tv_sec) {
+            onNewTime(packet->time);
         }
 
         // Add packet to the packets_and_tasks_map_
-        addPacket(std::make_unique<Packet>(packet));
+        addPacket(std::move(packet));
     }
 }
 
+
 void TaskManager::addPacket(std::unique_ptr<Packet> packet) {
     std::lock_guard<std::mutex> lock(packet_queue_mutex_);
+    // Log that a packet is being added
+    LOG(INFO) << "Adding packet " << packet->time.tv_sec << " seconds";
     packets_and_tasks_map_[packet->time.tv_sec].first.emplace_back(
         std::move(packet));
 
@@ -61,6 +74,10 @@ void TaskManager::addTask(std::unique_ptr<PeriodicTask> task) {
 void TaskManager::removeTask(PeriodicTask task) {
     std::lock_guard<std::mutex> lock(mutex_);
 
+    // Log that a task is being removed
+    LOG(INFO) << "Removing task " << task.getId() << " with interval "
+              << task.getInterval() << " seconds";
+
     // tasks_ is a map from interval to vector of tasks
     // get the vector of tasks for the given interval
     auto& task_vec = packets_and_tasks_map_[task.getInterval()].second;
@@ -78,16 +95,28 @@ void TaskManager::setPeriodicTaskInterval(PeriodicTask& task,
                                           int interval_sec) {
     std::lock_guard<std::mutex> lock(mutex_);
 
+    // Log that a task is being updated
+    LOG(INFO) << "Updating task " << task.getId() << " with interval "
+              << interval_sec << " seconds";
+
     // Update the task interval
     task.setInterval(interval_sec);
 }
 
 void TaskManager::startAllTasks() {
+    // Log that the task manager is starting
+    LOG(INFO) << "Starting task manager";
+
     task_thread_ = std::thread(&TaskManager::taskThreadFunc, this);
     packet_thread_ = std::thread(&TaskManager::processPackets, this);
 }
 
 void TaskManager::stopAllTasks() {
+    // Log that the task manager is stopping
+    std::lock_guard<std::mutex> lock(packet_queue_mutex_);
+    LOG(INFO) << "Stopping task manager";
+    stop_ = true;
+    packet_queue_cv_.notify_one();
     task_thread_.join();
     packet_thread_.join();
 }
@@ -117,6 +146,8 @@ void TaskManager::taskThreadFunc() {
                 // Iterate over the packets and execute the task with each
                 // packet
                 for (auto& packet : packets_and_tasks.first) {
+                            // Log that the task manager is executing tasks
+        LOG(INFO) << "Executing tasks";
                     task->execute(packet);
                 }
                 // Update the last_executed_time

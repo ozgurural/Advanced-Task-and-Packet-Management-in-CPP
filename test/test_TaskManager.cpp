@@ -1,4 +1,5 @@
 #include "TaskManager.h"
+
 #include "gtest/gtest.h"
 
 class TaskManagerTest : public ::testing::Test {
@@ -21,24 +22,19 @@ protected:
 
 // Test the getTimeSource() method
 TEST_F(TaskManagerTest, TestGetTimeSource) {
-    /*
-
-    std::unique_ptr<TaskManager> task_manager;
     // Get the time source
     std::chrono::time_point<std::chrono::steady_clock> time_source1 =
-    task_manager->getTimeSource();
+        task_manager->getTimeSource();
 
     // Sleep for 1 second
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     // Get the time source again
     std::chrono::time_point<std::chrono::steady_clock> time_source2 =
-    task_manager->getTimeSource();
+        task_manager->getTimeSource();
 
     // The second time source should be greater than the first
     EXPECT_GT(time_source2, time_source1);
-    */
-    EXPECT_EQ(1, 1);
 }
 
 // Test that the TaskManager::addPacket() function adds a packet to the queue.
