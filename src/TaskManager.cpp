@@ -17,13 +17,14 @@ TaskManager::getTimeSource() {
 void TaskManager::processPackets() {
     while (!stop_) {
         // Log ProcessPackets thread
-        LOG(INFO) << "Process Packets thread running"; 
+        LOG(INFO) << "Process Packets thread running";
 
         try {
             // Wait for 500 milliseconds
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-            // If the stop flag is set or the queue is empty, continue to the next iteration of the loop
+            // If the stop flag is set or the queue is empty, continue to the
+            // next iteration of the loop
             if (stop_ || incoming_packet_queue_.empty()) {
                 continue;
             }
@@ -144,7 +145,7 @@ void TaskManager::stopAllTasks() {
     // Log that the task manager is stopping
     std::lock_guard<std::mutex> lock(packet_queue_mutex_);
     stop_ = true;
-    
+
     // Log that the task thread is stopping
     LOG(INFO) << "Stopping task thread";
     if (task_thread_.joinable()) {
@@ -172,9 +173,6 @@ std::map<time_t, PacketsAndTasks>& TaskManager::getPacketsAndTasks() {
 
 void TaskManager::taskThreadFunc() {
     while (!stop_) {
-        // Use the time source function to get the current time.
-        std::chrono::time_point<std::chrono::steady_clock> now =
-            getTimeSource();
         std::lock_guard<std::mutex> lock(mutex_);
 
         // Log that the task thread is running
@@ -195,12 +193,11 @@ void TaskManager::taskThreadFunc() {
                     task->execute(packet);
                 }
                 // Update the last_executed_time
-                task->setLastExecutedTime(now);
+                task->setLastExecutedTime(getTimeSource());
             }
         }
 
         // Sleep for a short time to allow other threads to run
-        // @todo - make this time configurable or use a condition variable
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
