@@ -111,7 +111,8 @@ void TaskManager::setPeriodicTaskInterval(std::shared_ptr<PeriodicTask> task,
 
     // Log that the interval of a task is being changed
     LOG(INFO) << "Changing interval of task " << task->getId() << " from "
-              << task->getInterval() << " seconds to " << interval << " seconds";
+              << task->getInterval() << " seconds to " << interval
+              << " seconds";
 
     // tasks_ is a map from interval to vector of tasks
     // get the vector of tasks for the old interval
@@ -130,7 +131,8 @@ void TaskManager::setPeriodicTaskInterval(std::shared_ptr<PeriodicTask> task,
 
     // Add the task to the vector of tasks for the new interval
     packets_and_tasks_map_[interval].tasks.emplace_back(
-        std::make_unique<PeriodicTask>(task->getInterval(), task->getFunction()));
+        std::make_unique<PeriodicTask>(task->getInterval(),
+                                       task->getFunction()));
 }
 
 void TaskManager::startAllTasks() {

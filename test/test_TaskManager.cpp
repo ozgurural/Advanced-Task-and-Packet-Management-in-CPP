@@ -123,31 +123,33 @@ changeTaskInterval() method is implemented correctly, this test should pass.
 */
 
 TEST(TaskManagerTest, TestChangeTaskInterval) {
-  // Create a TaskManager instance
-  TaskManager taskManager;
+    // Create a TaskManager instance
+    TaskManager taskManager;
 
-  // Create a periodic task with an interval of 1 second and a lambda function
-  // that increments a counter
-  int counter = 0;
-  auto task = std::make_shared<PeriodicTask>(1, [&counter](auto){ ++counter; });
+    // Create a periodic task with an interval of 1 second and a lambda function
+    // that increments a counter
+    int counter = 0;
+    auto task =
+        std::make_shared<PeriodicTask>(1, [&counter](auto) { ++counter; });
 
-  // Add the task to the TaskManager
-  taskManager.addTask(task);
+    // Add the task to the TaskManager
+    taskManager.addTask(task);
 
-  // Change the interval of the task to 2 seconds
-  taskManager.setPeriodicTaskInterval(task, 2);
+    // Change the interval of the task to 2 seconds
+    taskManager.setPeriodicTaskInterval(task, 2);
 
-  // Check that the task has been moved to the 2-second interval
-  std::map<time_t, PacketsAndTasks>& packetsAndTasks = taskManager.getPacketsAndTasks();
-  bool taskFound = false;
-  for (auto& [interval, tasksAndPackets] : packetsAndTasks) {
-      for (auto& t : tasksAndPackets.tasks) {
-          if (t->getId() == task->getId()) {
-              EXPECT_EQ(interval, 2);
-              taskFound = true;
-              break;
-          }
-      }
-  }
-  EXPECT_TRUE(taskFound);
+    // Check that the task has been moved to the 2-second interval
+    std::map<time_t, PacketsAndTasks>& packetsAndTasks =
+        taskManager.getPacketsAndTasks();
+    bool taskFound = false;
+    for (auto& [interval, tasksAndPackets] : packetsAndTasks) {
+        for (auto& t : tasksAndPackets.tasks) {
+            if (t->getId() == task->getId()) {
+                EXPECT_EQ(interval, 2);
+                taskFound = true;
+                break;
+            }
+        }
+    }
+    EXPECT_TRUE(taskFound);
 }
