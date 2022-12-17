@@ -63,5 +63,7 @@ int main() {
     // Stop all tasks
     task_manager.stopAllTasks();
 
+    // wait until enter is pressed
+    std::cin.get();
     return 0;
 }

@@ -16,27 +16,36 @@ TaskManager::getTimeSource() {
 // packets.
 void TaskManager::processPackets() {
     while (!stop_) {
-        // Wait for the next packet to be available in the queue
-        std::unique_lock<std::mutex> lock(packet_queue_mutex_);
-        // Log waiting for the next packet
-        LOG(INFO) << "Waiting for the next packet";
-        packet_queue_cv_.wait(
-            lock, [this] { return !incoming_packet_queue_.empty() || stop_; });
+        // Log ProcessPackets thread
+        LOG(INFO) << "Process Packets thread running"; 
 
-        // Pop the next packet from the queue
-        auto packet = std::move(incoming_packet_queue_.front());
-        incoming_packet_queue_.pop();
-        lock.unlock();
+        try {
+            // Wait for 500 milliseconds
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-        // If the packet has a new timestamp, call onNewTime()
-        if (currentTime_.tv_sec != packet->time.tv_sec) {
-            onNewTime(packet->time);
+            // If the stop flag is set or the queue is empty, continue to the next iteration of the loop
+            if (stop_ || incoming_packet_queue_.empty()) {
+                continue;
+            }
+
+            // Pop the next packet from the queue
+            std::unique_lock<std::mutex> lock(packet_queue_mutex_);
+            auto packet = std::move(incoming_packet_queue_.front());
+            incoming_packet_queue_.pop();
+            lock.unlock();
+
+            // If the packet has a new timestamp, call onNewTime()
+            if (currentTime_.tv_sec != packet->time.tv_sec) {
+                onNewTime(packet->time);
+            }
+
+            // Add packet to the packets_and_tasks_map_
+            addPacket(std::move(packet));
+            LOG(INFO) << "Packet processed";
+        } catch (const std::exception& e) {
+            // Log the exception that was thrown
+            LOG(ERROR) << "Exception thrown in processPackets(): " << e.what();
         }
-
-        // Add packet to the packets_and_tasks_map_
-        addPacket(std::move(packet));
-        LOG(INFO) << "Packet processed";
-        packet_queue_cv_.notify_one();
     }
 }
 
@@ -127,27 +136,34 @@ void TaskManager::startAllTasks() {
     // Log that the task manager is starting
     LOG(INFO) << "Starting task manager";
 
-    task_thread_ = std::thread(&TaskManager::taskThreadFunc, this);
-    packet_thread_ = std::thread(&TaskManager::processPackets, this);
+    task_thread_ = std::jthread(&TaskManager::taskThreadFunc, this);
+    packet_thread_ = std::jthread(&TaskManager::processPackets, this);
 }
 
 void TaskManager::stopAllTasks() {
     // Log that the task manager is stopping
     std::lock_guard<std::mutex> lock(packet_queue_mutex_);
     stop_ = true;
-    packet_queue_cv_.notify_one();
-
+    
     // Log that the task thread is stopping
     LOG(INFO) << "Stopping task thread";
-    task_thread_.join();
-    // Log that task thread has stopped
-    LOG(INFO) << "Task thread stopped";
+    if (task_thread_.joinable()) {
+        task_thread_.join();
+        // Log that task thread has stopped
+        LOG(INFO) << "Task thread stopped";
+    } else {
+        LOG(WARNING) << "Task thread is not joinable";
+    }
 
     // Log that the packet thread is stopping
     LOG(INFO) << "Stopping packet thread";
-    packet_thread_.join();
-    // Log that packet thread has stopped
-    LOG(INFO) << "Packet thread stopped";
+    if (packet_thread_.joinable()) {
+        packet_thread_.join();
+        // Log that packet thread has stopped
+        LOG(INFO) << "Packet thread stopped";
+    } else {
+        LOG(WARNING) << "Packet thread is not joinable";
+    }
 }
 
 std::map<time_t, PacketsAndTasks>& TaskManager::getPacketsAndTasks() {

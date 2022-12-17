@@ -46,8 +46,8 @@ private:
     std::mutex packet_queue_mutex_;
 
     // Thread used to execute periodic tasks
-    std::thread task_thread_;
-    std::thread packet_thread_;
+    std::jthread task_thread_;
+    std::jthread packet_thread_;
 
     // Map containing managed periodic tasks and Packages
     std::map<time_t, PacketsAndTasks> packets_and_tasks_map_;
