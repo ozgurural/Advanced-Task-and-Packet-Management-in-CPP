@@ -85,52 +85,52 @@ void TaskManager::addTask(const std::shared_ptr<PeriodicTask>& task) {
               << packets_and_tasks_map_[interval].packets.size();
 }
 
-void TaskManager::removeTask(PeriodicTask task) {
+void TaskManager::removeTask(std::shared_ptr<PeriodicTask> task) {
     std::lock_guard<std::mutex> lock(mutex_);
 
     // Log that a task is being removed
-    LOG(INFO) << "Removing task " << task.getId() << " with interval "
-              << task.getInterval() << " seconds";
+    LOG(INFO) << "Removing task " << task->getId() << " with interval "
+              << task->getInterval() << " seconds";
 
     // tasks_ is a map from interval to vector of tasks
     // get the vector of tasks for the given interval
-    auto& task_vec = packets_and_tasks_map_[task.getInterval()].tasks;
+    auto& task_vec = packets_and_tasks_map_[task->getInterval()].tasks;
 
     // find the task with the matching id and remove it
     task_vec.erase(
         std::remove_if(task_vec.begin(), task_vec.end(),
                        [&task](const std::shared_ptr<PeriodicTask>& t) {
-                           return t->getId() == task.getId();
+                           return t->getId() == task->getId();
                        }),
         task_vec.end());
 }
 
-void TaskManager::setPeriodicTaskInterval(PeriodicTask& task,
+void TaskManager::setPeriodicTaskInterval(std::shared_ptr<PeriodicTask> task,
                                           const time_t interval) {
     std::lock_guard<std::mutex> lock(mutex_);
 
     // Log that the interval of a task is being changed
-    LOG(INFO) << "Changing interval of task " << task.getId() << " from "
-              << task.getInterval() << " seconds to " << interval << " seconds";
+    LOG(INFO) << "Changing interval of task " << task->getId() << " from "
+              << task->getInterval() << " seconds to " << interval << " seconds";
 
     // tasks_ is a map from interval to vector of tasks
     // get the vector of tasks for the old interval
-    auto& task_vec = packets_and_tasks_map_[task.getInterval()].tasks;
+    auto& task_vec = packets_and_tasks_map_[task->getInterval()].tasks;
 
     // find the task with the matching id and remove it from the vector
     task_vec.erase(
         std::remove_if(task_vec.begin(), task_vec.end(),
                        [&task](const std::shared_ptr<PeriodicTask>& t) {
-                           return t->getId() == task.getId();
+                           return t->getId() == task->getId();
                        }),
         task_vec.end());
 
     // Set the new interval for the task
-    task.setInterval(interval);
+    task->setInterval(interval);
 
     // Add the task to the vector of tasks for the new interval
     packets_and_tasks_map_[interval].tasks.emplace_back(
-        std::make_unique<PeriodicTask>(task.getInterval(), task.getFunction()));
+        std::make_unique<PeriodicTask>(task->getInterval(), task->getFunction()));
 }
 
 void TaskManager::startAllTasks() {

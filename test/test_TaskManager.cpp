@@ -1,73 +1,153 @@
+#include <gtest/gtest.h>
 #include "TaskManager.h"
 
-#include "gtest/gtest.h"
+// Define a test for the addPacket() method
+TEST(TaskManagerTest, addPacket) {
+    // Create an object of type TaskManager
+    TaskManager task_manager;
 
-class TaskManagerTest : public ::testing::Test {
-protected:
-    // Set up the test fixture
-    void SetUp() override {
-        // Create a TaskManager object
-        task_manager = std::make_unique<TaskManager>();
-    }
+    // Create a packet with some data
+    std::vector<uint8_t> packet_data = {1, 2, 3, 4};
+    struct timeval packet_time = {5000, 0};
+    std::shared_ptr<Packet> packet =
+        std::make_shared<Packet>(packet_time, packet_data);
 
-    // Tear down the test fixture
-    void TearDown() override {
-        // Destroy the TaskManager object
-        task_manager = nullptr;
-    }
+    // Add the packet to the queue
+    task_manager.addPacket(packet);
 
-    // The TaskManager object used in the tests
-    std::unique_ptr<TaskManager> task_manager;
-};
+    // Get the map of packets and tasks from the TaskManager object
+    std::map<time_t, PacketsAndTasks> packets_and_tasks_map =
+        task_manager.getPacketsAndTasks();
 
-// Test the getTimeSource() method
-TEST_F(TaskManagerTest, TestGetTimeSource) {
-    // Get the time source
-    std::chrono::time_point<std::chrono::steady_clock> time_source1 =
-        task_manager->getTimeSource();
-
-    // Sleep for 1 second
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-
-    // Get the time source again
-    std::chrono::time_point<std::chrono::steady_clock> time_source2 =
-        task_manager->getTimeSource();
-
-    // The second time source should be greater than the first
-    EXPECT_GT(time_source2, time_source1);
+    // Check that the packet was added to the map
+    EXPECT_EQ(packets_and_tasks_map[5000].packets.size(), 1);
+    EXPECT_EQ(packets_and_tasks_map[5000].packets[0], packet);
 }
 
-// Test that the TaskManager::addPacket() function adds a packet to the queue.
-TEST_F(TaskManagerTest, TestAddPacket) {
-    /*
+// Define a test for the addTask() method
+TEST(TaskManagerTest, addTask) {
+    // Create an object of type TaskManager
     TaskManager task_manager;
-    struct timeval packet_time = {1608210960, 0};
-    std::vector<uint8_t> packet_data = {1, 2, 3, 4};
-    std::unique_ptr<Packet> packet =
-        std::make_unique<Packet>(packet_time, packet_data);
 
-    // Add a packet to the queue.
-    task_manager.addPacket(std::move(packet));
+    // Create a function that prints the packet data
+    auto print_packet_data = [](std::shared_ptr<Packet>& packet) {
+        std::cout << "Packet data: ";
+        for (auto& byte : packet->data) {
+            std::cout << std::hex << (int)byte << " ";
+        }
+        std::cout << std::endl;
+    };
 
-    // Check that the queue contains the expected packet.
-    auto packets_and_tasks = task_manager.getPacketsAndTasks();
-    auto it = packets_and_tasks.begin();
-    EXPECT_EQ(it->second.first.front()->time.tv_sec, packet_time.tv_sec);
-    EXPECT_EQ(it->second.first.front()->data, packet_data);
-    */
-    EXPECT_EQ(1, 1);
+    // Create a periodic task that takes an interval and packet as arguments
+    // and prints the packet data
+    std::shared_ptr<PeriodicTask> task =
+        std::make_shared<PeriodicTask>(5000, print_packet_data);
+
+    // Add the task to the TaskManager object
+    task_manager.addTask(task);
+
+    // Get the map of packets and tasks from the TaskManager object
+    std::map<time_t, PacketsAndTasks> packets_and_tasks_map =
+        task_manager.getPacketsAndTasks();
+
+    // Check that the task was added to the map
+    EXPECT_EQ(packets_and_tasks_map[5000].tasks.size(), 1);
+    EXPECT_EQ(packets_and_tasks_map[5000].tasks[0], task);
+}
+
+TEST(TaskManagerTest, TestAddTask) {
+    // Create a TaskManager instance
+    TaskManager taskManager;
+
+    // Create a periodic task with an interval of 1 second
+    auto task = PeriodicTaskFactory::createPeriodicTask(1, [](auto&) {});
+
+    // Add the task to the TaskManager
+    taskManager.addTask(task);
+
+    // Check that the task was added to the map
+    EXPECT_EQ(taskManager.getPacketsAndTasks()[1].tasks.size(), 1);
+    EXPECT_EQ(taskManager.getPacketsAndTasks()[1].tasks[0], task);
+}
+
+// Test to add and remove a task
+TEST(TaskManagerTest, TestAddAndRemoveTask) {
+    // Create a TaskManager instance
+    TaskManager taskManager;
+    // Create a periodic task with an interval of 1 second and a lambda function
+    // that increments a counter
+    int counter = 0;
+    auto task =
+        std::make_shared<PeriodicTask>(1, [&counter](auto) { ++counter; });
+
+    // Add the task to the TaskManager
+    taskManager.addTask(task);
+    // Check that the task has been added
+    std::map<time_t, PacketsAndTasks>& packetsAndTasks =
+        taskManager.getPacketsAndTasks();
+    bool taskFound = false;
+    for (auto& [interval, tasksAndPackets] : packetsAndTasks) {
+        for (auto& t : tasksAndPackets.tasks) {
+            if (t->getId() == task->getId()) {
+                taskFound = true;
+                break;
+            }
+        }
+    }
+    EXPECT_TRUE(taskFound);
+
+    // Remove the task from the TaskManager
+    taskManager.removeTask(task);
+    // Check that the task has been removed
+    taskFound = false;
+    for (auto& [interval, tasksAndPackets] : packetsAndTasks) {
+        for (auto& t : tasksAndPackets.tasks) {
+            if (t->getId() == task->getId()) {
+                taskFound = true;
+                break;
+            }
+        }
+    }
+    EXPECT_FALSE(taskFound);
 }
 
 /*
-// Test that the TaskManager::onNewTime() function updates the current time.
-TEST_F(TaskManagerTest, TestOnNewTime) {
-    TaskManager task_manager;
-    struct timeval new_time = {1608210960, 0};
+TestChangeTaskInterval test does the following:
 
-    // Update the current time.
-    task_manager.onNewTime(new_time);
-
-    // Check that the current time has been updated.
-    EXPECT_EQ(task_manager.getCurrentTime().tv_sec, new_time.tv_sec);
-}
+Creates a TaskManager instance and a periodic task with an interval of 1 second.
+Adds the task to the TaskManager.
+Calls the changeTaskInterval() method to change the interval of the task to 2
+seconds. Iterates through the tasks in the TaskManager and checks that the task
+with the matching id is found in the 2-second interval. If the
+changeTaskInterval() method is implemented correctly, this test should pass.
 */
+
+TEST(TaskManagerTest, TestChangeTaskInterval) {
+  // Create a TaskManager instance
+  TaskManager taskManager;
+
+  // Create a periodic task with an interval of 1 second and a lambda function
+  // that increments a counter
+  int counter = 0;
+  auto task = std::make_shared<PeriodicTask>(1, [&counter](auto){ ++counter; });
+
+  // Add the task to the TaskManager
+  taskManager.addTask(task);
+
+  // Change the interval of the task to 2 seconds
+  taskManager.setPeriodicTaskInterval(task, 2);
+
+  // Check that the task has been moved to the 2-second interval
+  std::map<time_t, PacketsAndTasks>& packetsAndTasks = taskManager.getPacketsAndTasks();
+  bool taskFound = false;
+  for (auto& [interval, tasksAndPackets] : packetsAndTasks) {
+      for (auto& t : tasksAndPackets.tasks) {
+          if (t->getId() == task->getId()) {
+              EXPECT_EQ(interval, 2);
+              taskFound = true;
+              break;
+          }
+      }
+  }
+  EXPECT_TRUE(taskFound);
+}

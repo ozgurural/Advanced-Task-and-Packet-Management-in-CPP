@@ -23,8 +23,9 @@ public:
     static std::chrono::time_point<std::chrono::steady_clock> getTimeSource();
 
     void addTask(const std::shared_ptr<PeriodicTask>&);
-    void removeTask(PeriodicTask task);
-    void setPeriodicTaskInterval(PeriodicTask& task, time_t interval_sec);
+    void removeTask(std::shared_ptr<PeriodicTask> task);
+    void setPeriodicTaskInterval(std::shared_ptr<PeriodicTask> task,
+                                 time_t interval_sec);
 
     void addPacket(const std::shared_ptr<Packet>&);
 
