@@ -23,8 +23,6 @@ int main() {
     // Add a packet to the queue.
     task_manager.addPacket(packet2);
 
-    std::map<time_t, PacketsAndTasks>& pt = task_manager.getPacketsAndTasks();
-
     // Create a function that prints the packet data
     auto print_packet_data = [](std::shared_ptr<Packet>& packet) {
         std::cout << "FUNC-1- Packet data: ";

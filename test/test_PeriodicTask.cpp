@@ -16,7 +16,7 @@ protected:
         task.setFunction([&](std::shared_ptr<Packet>& packet) { flag = true; });
     }
 
-    bool flag;
+    bool flag{};
 };
 
 TEST_F(PeriodicTaskTest_SetFunction_Test, Test) {

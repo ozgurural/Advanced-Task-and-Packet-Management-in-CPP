@@ -11,7 +11,7 @@ public:
     Packet(struct timeval time, const std::vector<uint8_t>& data)
         : time(time), data(data) {}
 
-    struct timeval time;
+    struct timeval time {};
     std::vector<uint8_t> data;
 };
 
