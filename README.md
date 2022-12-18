@@ -28,7 +28,7 @@ This will build the forescout executable. To run the executable, run:
 ./forescout
 ```
 A sample output of forescout executable is as the following:
-``sh
+```sh
 ozgurural@ozgurural:~/Desktop/forescout/forescout-cpp-challange/build$ ./forescout 
 [INFO][2022-12-18 18:49:57.890151]: Adding packet 5000 seconds
 [INFO][2022-12-18 18:49:57.890218]: Number of packets added: 1
@@ -85,7 +85,7 @@ FUNC-2- Packet data: 15 16 17 18
 [WARNING][2022-12-18 18:50:08.938961]: Task thread is not joinable
 [INFO][2022-12-18 18:50:08.938986]: Stopping packet thread
 [WARNING][2022-12-18 18:50:08.939009]: Packet thread is not joinable
-``
+```
 
 To run the unit tests, execute the following command: 
 ```sh
