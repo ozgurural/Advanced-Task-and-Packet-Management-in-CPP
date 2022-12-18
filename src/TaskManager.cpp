@@ -130,9 +130,7 @@ void TaskManager::setPeriodicTaskInterval(std::shared_ptr<PeriodicTask> task,
     task->setInterval(interval);
 
     // Add the task to the vector of tasks for the new interval
-    packets_and_tasks_map_[interval].tasks.emplace_back(
-        std::make_unique<PeriodicTask>(task->getInterval(),
-                                       task->getFunction()));
+    packets_and_tasks_map_[interval].tasks.emplace_back(task);
 }
 
 void TaskManager::startAllTasks() {

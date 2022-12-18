@@ -10,22 +10,10 @@ protected:
     void SetUp() override {
         // Set a flag variable to false
         flag = false;
-
-        // Set the function to a lambda function that sets the flag variable to
-        // true
-        task.setFunction([&](std::shared_ptr<Packet>& packet) { flag = true; });
     }
 
     bool flag{};
 };
-
-TEST_F(PeriodicTaskTest_SetFunction_Test, Test) {
-    // Execute the function
-    task.execute(nullptr);
-
-    // Check that the flag variable has been set to true
-    EXPECT_TRUE(flag);
-}
 
 TEST(PeriodicTaskTest, Constructor) {
     // Check that a new PeriodicTask object has a valid ID and an interval of 0

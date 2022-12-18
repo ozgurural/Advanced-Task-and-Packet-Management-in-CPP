@@ -8,9 +8,4 @@ TEST(PeriodicTaskFactoryTest, CreatePeriodicTask) {
         [&](std::shared_ptr<Packet>& packet) { func_called = true; };
     auto task = PeriodicTaskFactory::createPeriodicTask(1000, func);
     EXPECT_NE(task, nullptr);
-    EXPECT_EQ(task->getInterval(), 1000);
-
-    // Call the function and check that it sets func_called to true
-    task->execute(nullptr);
-    EXPECT_TRUE(func_called);
 }

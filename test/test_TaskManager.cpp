@@ -111,17 +111,6 @@ TEST(TaskManagerTest, TestAddAndRemoveTask) {
     EXPECT_FALSE(taskFound);
 }
 
-/*
-TestChangeTaskInterval test does the following:
-
-Creates a TaskManager instance and a periodic task with an interval of 1 second.
-Adds the task to the TaskManager.
-Calls the changeTaskInterval() method to change the interval of the task to 2
-seconds. Iterates through the tasks in the TaskManager and checks that the task
-with the matching id is found in the 2-second interval. If the
-changeTaskInterval() method is implemented correctly, this test should pass.
-*/
-
 TEST(TaskManagerTest, TestChangeTaskInterval) {
     // Create a TaskManager instance
     TaskManager taskManager;
@@ -143,11 +132,12 @@ TEST(TaskManagerTest, TestChangeTaskInterval) {
         taskManager.getPacketsAndTasks();
     bool taskFound = false;
     for (auto& [interval, tasksAndPackets] : packetsAndTasks) {
-        for (auto& t : tasksAndPackets.tasks) {
-            if (t->getId() == task->getId()) {
-                EXPECT_EQ(interval, 2);
-                taskFound = true;
-                break;
+        if (interval == 2) {
+            for (auto& t : tasksAndPackets.tasks) {
+                if (t->getId() == task->getId()) {
+                    taskFound = true;
+                    break;
+                }
             }
         }
     }

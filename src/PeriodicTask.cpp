@@ -22,12 +22,6 @@ void PeriodicTask::setInterval(long interval) {
     interval_ = interval;
 }
 
-void PeriodicTask::setFunction(
-    const std::function<void(std::shared_ptr<Packet>&)>& func) {
-    std::lock_guard<std::mutex> lock(mutex_);
-    task_ = func;
-}
-
 void PeriodicTask::execute(std::shared_ptr<Packet> packet) {
     if (packet == nullptr)
         return;

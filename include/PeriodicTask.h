@@ -37,8 +37,6 @@ public:
 
     auto getInterval() const { return interval_; }
 
-    void setFunction(const std::function<void(std::shared_ptr<Packet>&)>& func);
-
     bool isTimeToExecute();
 
     void execute(std::shared_ptr<Packet>);
