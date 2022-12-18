@@ -91,6 +91,88 @@ To run the unit tests, execute the following command:
 ```sh
 ./unit_tests
 ```
+A sample output of unit_tests is as the following:
+```sh
+ozgurural@ozgurural:~/Desktop/forescout/forescout-cpp-challange/build$ ./unit_tests 
+Running main() from /home/ozgurural/Downloads/googletest/googletest/src/gtest_main.cc
+[==========] Running 12 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from TaskManagerTest
+[ RUN      ] TaskManagerTest.addPacket
+[INFO][2022-12-18 18:53:22.784566]: Adding packet 5000 seconds
+[INFO][2022-12-18 18:53:22.784623]: Number of packets added: 1
+[INFO][2022-12-18 18:53:22.784643]: Stopping task thread
+[WARNING][2022-12-18 18:53:22.784654]: Task thread is not joinable
+[INFO][2022-12-18 18:53:22.784665]: Stopping packet thread
+[WARNING][2022-12-18 18:53:22.784676]: Packet thread is not joinable
+[       OK ] TaskManagerTest.addPacket (0 ms)
+[ RUN      ] TaskManagerTest.addTask
+[INFO][2022-12-18 18:53:22.784712]: Adding task 0 with interval 5000 seconds
+[INFO][2022-12-18 18:53:22.784726]: Number of packets before adding task: 0
+[INFO][2022-12-18 18:53:22.784739]: Number of packets after adding task: 0
+[INFO][2022-12-18 18:53:22.784752]: Stopping task thread
+[WARNING][2022-12-18 18:53:22.784763]: Task thread is not joinable
+[INFO][2022-12-18 18:53:22.784773]: Stopping packet thread
+[WARNING][2022-12-18 18:53:22.784783]: Packet thread is not joinable
+[       OK ] TaskManagerTest.addTask (0 ms)
+[ RUN      ] TaskManagerTest.TestAddTask
+[INFO][2022-12-18 18:53:22.784814]: Adding task 1 with interval 1 seconds
+[INFO][2022-12-18 18:53:22.784827]: Number of packets before adding task: 0
+[INFO][2022-12-18 18:53:22.784838]: Number of packets after adding task: 0
+[INFO][2022-12-18 18:53:22.784849]: Stopping task thread
+[WARNING][2022-12-18 18:53:22.784859]: Task thread is not joinable
+[INFO][2022-12-18 18:53:22.784869]: Stopping packet thread
+[WARNING][2022-12-18 18:53:22.784879]: Packet thread is not joinable
+[       OK ] TaskManagerTest.TestAddTask (0 ms)
+[ RUN      ] TaskManagerTest.TestAddAndRemoveTask
+[INFO][2022-12-18 18:53:22.784909]: Adding task 2 with interval 1 seconds
+[INFO][2022-12-18 18:53:22.784922]: Number of packets before adding task: 0
+[INFO][2022-12-18 18:53:22.784934]: Number of packets after adding task: 0
+[INFO][2022-12-18 18:53:22.784945]: Removing task 2 with interval 1 seconds
+[INFO][2022-12-18 18:53:22.784958]: Stopping task thread
+[WARNING][2022-12-18 18:53:22.784968]: Task thread is not joinable
+[INFO][2022-12-18 18:53:22.784978]: Stopping packet thread
+[WARNING][2022-12-18 18:53:22.784988]: Packet thread is not joinable
+[       OK ] TaskManagerTest.TestAddAndRemoveTask (0 ms)
+[ RUN      ] TaskManagerTest.TestChangeTaskInterval
+[INFO][2022-12-18 18:53:22.785016]: Adding task 3 with interval 1 seconds
+[INFO][2022-12-18 18:53:22.785029]: Number of packets before adding task: 0
+[INFO][2022-12-18 18:53:22.785041]: Number of packets after adding task: 0
+[INFO][2022-12-18 18:53:22.785052]: Changing interval of task 3 from 1 seconds to 2 seconds
+[INFO][2022-12-18 18:53:22.785067]: Stopping task thread
+[WARNING][2022-12-18 18:53:22.785076]: Task thread is not joinable
+[INFO][2022-12-18 18:53:22.785087]: Stopping packet thread
+[WARNING][2022-12-18 18:53:22.785097]: Packet thread is not joinable
+[       OK ] TaskManagerTest.TestChangeTaskInterval (0 ms)
+[----------] 5 tests from TaskManagerTest (0 ms total)
+
+[----------] 4 tests from PeriodicTaskTest
+[ RUN      ] PeriodicTaskTest.Constructor
+[       OK ] PeriodicTaskTest.Constructor (0 ms)
+[ RUN      ] PeriodicTaskTest.SetInterval
+[       OK ] PeriodicTaskTest.SetInterval (0 ms)
+[ RUN      ] PeriodicTaskTest.Execute
+[       OK ] PeriodicTaskTest.Execute (0 ms)
+[ RUN      ] PeriodicTaskTest.IsTimeToExecute
+[       OK ] PeriodicTaskTest.IsTimeToExecute (1100 ms)
+[----------] 4 tests from PeriodicTaskTest (1100 ms total)
+
+[----------] 1 test from PeriodicTaskFactoryTest
+[ RUN      ] PeriodicTaskFactoryTest.CreatePeriodicTask
+[       OK ] PeriodicTaskFactoryTest.CreatePeriodicTask (0 ms)
+[----------] 1 test from PeriodicTaskFactoryTest (0 ms total)
+
+[----------] 2 tests from Logger
+[ RUN      ] Logger.LogLevelToString
+[       OK ] Logger.LogLevelToString (0 ms)
+[ RUN      ] Logger.GetCurrentTimeAsString
+[       OK ] Logger.GetCurrentTimeAsString (5 ms)
+[----------] 2 tests from Logger (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 4 test suites ran. (1106 ms total)
+[  PASSED  ] 12 tests.
+```
 
 ### Directory Structure
 The project consists of the following directories:
