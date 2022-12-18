@@ -25,24 +25,6 @@ TEST(Logger, GetCurrentTimeAsString) {
 
     // Verify that the string has the correct format (YYYY-MM-DD
     // HH:MM:SS.ssssss)
-    std::regex time_regex("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{6}");
+    std::regex time_regex(R"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{6})");
     EXPECT_TRUE(std::regex_match(current_time, time_regex));
-}
-
-// Test the Log class
-TEST(Logger, Log) {
-    // Capture the output of the log message
-    testing::internal::CaptureStdout();
-
-    // Create a log message using the LOG() macro
-    LOG(INFO) << "This is a test log message";
-
-    // Get the captured output as a string
-    std::string output = testing::internal::GetCapturedStdout();
-
-    // Verify that the log message was output to the standard output stream
-    std::regex log_regex(
-        "\\[INFO\\]\\[\\d{4}-\\d{2}-\\d{2} "
-        "\\d{2}:\\d{2}:\\d{2}\\.\\d{6}\\]:This is a test log message\n");
-    EXPECT_TRUE(std::regex_match(output, log_regex));
 }
