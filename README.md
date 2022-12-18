@@ -27,6 +27,66 @@ This will build the forescout executable. To run the executable, run:
 ```sh
 ./forescout
 ```
+A sample output of forescout executable is as the following:
+``sh
+ozgurural@ozgurural:~/Desktop/forescout/forescout-cpp-challange/build$ ./forescout 
+[INFO][2022-12-18 18:49:57.890151]: Adding packet 5000 seconds
+[INFO][2022-12-18 18:49:57.890218]: Number of packets added: 1
+[INFO][2022-12-18 18:49:57.890230]: Adding packet 5000 seconds
+[INFO][2022-12-18 18:49:57.890239]: Number of packets added: 2
+[INFO][2022-12-18 18:49:57.890250]: Adding task 0 with interval 5000 seconds
+[INFO][2022-12-18 18:49:57.890259]: Number of packets before adding task: 2
+[INFO][2022-12-18 18:49:57.890267]: Number of packets after adding task: 2
+[INFO][2022-12-18 18:49:57.890275]: Adding task 1 with interval 5000 seconds
+[INFO][2022-12-18 18:49:57.890282]: Number of packets before adding task: 2
+[INFO][2022-12-18 18:49:57.890290]: Number of packets after adding task: 2
+[INFO][2022-12-18 18:49:57.890298]: Adding task 2 with interval 1000 seconds
+[INFO][2022-12-18 18:49:57.890306]: Number of packets before adding task: 0
+[INFO][2022-12-18 18:49:57.890314]: Number of packets after adding task: 0
+[TRACE][2022-12-18 18:49:57.890322]: New time: 5000 seconds
+[INFO][2022-12-18 18:49:57.890329]: Starting task manager
+[INFO][2022-12-18 18:49:57.890418]: Process Packets thread running
+[INFO][2022-12-18 18:49:57.890435]: Task thread running
+[INFO][2022-12-18 18:49:58.390675]: Process Packets thread running
+[INFO][2022-12-18 18:49:58.890606]: Task thread running
+[INFO][2022-12-18 18:49:58.890860]: Process Packets thread running
+[INFO][2022-12-18 18:49:59.391319]: Process Packets thread running
+[INFO][2022-12-18 18:49:59.890822]: Task thread running
+[INFO][2022-12-18 18:49:59.891474]: Process Packets thread running
+[INFO][2022-12-18 18:50:00.391885]: Process Packets thread running
+[INFO][2022-12-18 18:50:00.891051]: Task thread running
+[INFO][2022-12-18 18:50:00.892122]: Process Packets thread running
+[INFO][2022-12-18 18:50:01.392367]: Process Packets thread running
+[INFO][2022-12-18 18:50:01.891300]: Task thread running
+[INFO][2022-12-18 18:50:01.892574]: Process Packets thread running
+[INFO][2022-12-18 18:50:02.392828]: Process Packets thread running
+[INFO][2022-12-18 18:50:02.891555]: Task thread running
+[INFO][2022-12-18 18:50:02.891654]: Executing tasks
+FUNC-1- Packet data: 1 2 3 4 
+[INFO][2022-12-18 18:50:02.891698]: Executing tasks
+FUNC-1- Packet data: 15 16 17 18 
+[INFO][2022-12-18 18:50:02.891730]: Executing tasks
+FUNC-2- Packet data: 1 2 3 4 
+[INFO][2022-12-18 18:50:02.891758]: Executing tasks
+FUNC-2- Packet data: 15 16 17 18 
+[INFO][2022-12-18 18:50:02.893065]: Process Packets thread running
+[INFO][2022-12-18 18:50:03.393330]: Process Packets thread running
+[INFO][2022-12-18 18:50:03.891892]: Task thread running
+[INFO][2022-12-18 18:50:03.893534]: Process Packets thread running
+[INFO][2022-12-18 18:50:04.393781]: Process Packets thread running
+
+[INFO][2022-12-18 18:50:04.889617]: Stop all tasks will be called from main
+[INFO][2022-12-18 18:50:04.889726]: Stopping task thread
+[INFO][2022-12-18 18:50:04.892245]: Task thread stopped
+[INFO][2022-12-18 18:50:04.892311]: Stopping packet thread
+[INFO][2022-12-18 18:50:04.894096]: Packet thread stopped
+
+[INFO][2022-12-18 18:50:08.938904]: Stopping task thread
+[WARNING][2022-12-18 18:50:08.938961]: Task thread is not joinable
+[INFO][2022-12-18 18:50:08.938986]: Stopping packet thread
+[WARNING][2022-12-18 18:50:08.939009]: Packet thread is not joinable
+``
+
 To run the unit tests, execute the following command: 
 ```sh
 ./unit_tests
