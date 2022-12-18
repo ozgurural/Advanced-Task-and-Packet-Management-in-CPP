@@ -1,6 +1,7 @@
 #ifndef TASK_MANAGER_H
 #define TASK_MANAGER_H
 
+#include <atomic>
 #include <condition_variable>
 #include <map>
 #include <memory>
@@ -60,7 +61,7 @@ private:
     std::condition_variable packet_queue_cv_;
 
     void taskThreadFunc();
-    bool stop_ = false;
+    std::atomic<bool> stop_{false};
 };
 
 #endif  // TASK_MANAGER_H

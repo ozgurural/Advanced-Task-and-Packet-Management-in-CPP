@@ -1,6 +1,7 @@
 #ifndef PERIODIC_TASK_H
 #define PERIODIC_TASK_H
 
+#include <atomic>
 #include <chrono>
 #include <functional>
 #include <map>
@@ -21,7 +22,7 @@ public:
           id_(next_id_++) {}
 
     // get the unique id of the task
-    int getId() const { return id_; }
+    int getId() const { return id_.load(); }
 
     std::chrono::time_point<std::chrono::steady_clock> getLastExecutedTime()
         const {
@@ -35,7 +36,7 @@ public:
     // Changes the interval of a periodic task.
     void setInterval(long interval);
 
-    auto getInterval() const { return interval_; }
+    auto getInterval() const { return interval_.load(); }
 
     bool isTimeToExecute();
 
@@ -48,7 +49,7 @@ public:
 
 private:
     // unique id of the task
-    int id_ = 0;
+    std::atomic<int> id_ = 0;
 
     // static variable to keep track of the last assigned id
     static int next_id_;
@@ -61,7 +62,9 @@ private:
 
     // Variable to store the last time a task was executed
     std::chrono::time_point<std::chrono::steady_clock> last_executed_time_;
-    long interval_;
+
+    // Variable to store the interval of the task
+    std::atomic<long> interval_;
 };
 
 #endif  // PERIODIC_TASK_H
