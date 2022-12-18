@@ -11,6 +11,7 @@
 
 class PeriodicTask {
 public:
+    PeriodicTask() : id_(0), interval_(0) {}
     // Constructor that takes a lambda function and an integer as arguments
     PeriodicTask(long interval,
                  const std::function<void(std::shared_ptr<Packet>&)>& task)
@@ -27,6 +28,10 @@ public:
         return last_executed_time_;
     }
 
+    static bool scompareFunctions(
+        const std::function<void(std::shared_ptr<Packet>&)>& f1,
+        const std::function<void(std::shared_ptr<Packet>&)>& f2);
+
     // Changes the interval of a periodic task.
     void setInterval(long interval);
 
@@ -36,7 +41,7 @@ public:
 
     bool isTimeToExecute();
 
-    void execute(std::shared_ptr<Packet>&);
+    void execute(std::shared_ptr<Packet>);
 
     void setLastExecutedTime(
         std::chrono::time_point<std::chrono::steady_clock> point);

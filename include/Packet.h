@@ -6,6 +6,8 @@
 
 class Packet {
 public:
+    Packet() = default;
+
     Packet(struct timeval time, const std::vector<uint8_t>& data)
         : time(time), data(data) {}
 

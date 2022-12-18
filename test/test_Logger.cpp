@@ -1,3 +1,4 @@
+#include <regex>
 #include "gtest/gtest.h"
 
 // Include the header file for the code being tested
@@ -44,9 +45,4 @@ TEST(Logger, Log) {
         "\\[INFO\\]\\[\\d{4}-\\d{2}-\\d{2} "
         "\\d{2}:\\d{2}:\\d{2}\\.\\d{6}\\]:This is a test log message\n");
     EXPECT_TRUE(std::regex_match(output, log_regex));
-}
-
-int main(int argc, char** argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
 }

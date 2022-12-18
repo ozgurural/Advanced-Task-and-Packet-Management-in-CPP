@@ -39,11 +39,14 @@ find_package(GTest REQUIRED)
 # Set the source files for the test_TaskManager test
 set(TEST_SOURCES
     test/test_TaskManager.cpp
+    test/test_PeriodicTask.cpp
+    test/test_PeriodicTaskFactory.cpp
+    test/test_Logger.cpp
 )
 
 # Add the test_TaskManager executable with the specified source files
-add_executable(test_TaskManager ${TEST_SOURCES} ${SOURCES} ${HEADERS})
+add_executable(unit_tests ${TEST_SOURCES} ${SOURCES} ${HEADERS})
 
 # Link the Google Test library to the test_TaskManager target
-target_link_libraries(test_TaskManager ${GTEST_BOTH_LIBRARIES})
+target_link_libraries(unit_tests ${GTEST_BOTH_LIBRARIES})
 
