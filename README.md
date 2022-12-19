@@ -14,7 +14,7 @@ The project consists of the following directories:
 - src - This directory contains the source files for the project.
 - test - This directory contains the unit tests for the project.
 
-#### Components
+### Components
 The project consists of the following components:
 
 - PeriodicTask: A class representing a periodic task that can be executed at regular intervals. It takes an interval and a lambda function as arguments in its constructor and has a method called execute that executes the lambda function. It also has a method called isTimeToExecute that returns true if the interval has passed since the last time the task was executed.
