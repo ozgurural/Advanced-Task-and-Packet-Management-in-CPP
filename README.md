@@ -7,6 +7,29 @@ The application uses a TaskManager class to manage the execution of periodic tas
 - CMake 3.22 or later
 - Google Test (optional, for unit tests)
 
+### Directory Structure
+The project consists of the following directories:
+
+- include - This directory contains the header files for the project.
+- src - This directory contains the source files for the project.
+- test - This directory contains the unit tests for the project.
+
+#### Components
+The project consists of the following components:
+
+- PeriodicTask: A class representing a periodic task that can be executed at regular intervals. It takes an interval and a lambda function as arguments in its constructor and has a method called execute that executes the lambda function. It also has a method called isTimeToExecute that returns true if the interval has passed since the last time the task was executed.
+
+- TaskManager: A class responsible for managing periodic tasks and packets. It has a map of intervals and associated tasks and packets, a queue of incoming packets, and a thread that executes periodic tasks at their respective intervals. It has methods to add and remove tasks, set the interval of a task, add packets to the queue, start and stop all tasks, and process packets. It also has a static method called getTimeSource that returns the current time.
+
+- Packet: A class representing a packet with a timestamp and data.
+
+- PeriodicTaskFactory: A class with a static method called createPeriodicTask that takes an interval and a lambda function as arguments and returns a shared pointer to a PeriodicTask object.
+
+- Logger: A class with static methods for logging messages at different levels (e.g., info, warning, error).
+
+- main.cpp: This is the main function for a program that uses the TaskManager class defined in the previous code snippet. The function creates an object of type TaskManager and calls the startAllTasks() method to start the threads that process incoming packets and execute the periodic tasks. Then, it waits for the user to press Enter before calling the stopAllTasks() method to stop these threads and terminate the program.
+
+
 
 ### Building and Running the Project
 To build the project, create a build directory and run CMake in it:
@@ -173,25 +196,3 @@ Running main() from /home/ozgurural/Downloads/googletest/googletest/src/gtest_ma
 [==========] 12 tests from 4 test suites ran. (1106 ms total)
 [  PASSED  ] 12 tests.
 ```
-
-### Directory Structure
-The project consists of the following directories:
-
-- include - This directory contains the header files for the project.
-- src - This directory contains the source files for the project.
-- test - This directory contains the unit tests for the project.
-
-#### Components
-The project consists of the following components:
-
-- PeriodicTask: A class representing a periodic task that can be executed at regular intervals. It takes an interval and a lambda function as arguments in its constructor and has a method called execute that executes the lambda function. It also has a method called isTimeToExecute that returns true if the interval has passed since the last time the task was executed.
-
-- TaskManager: A class responsible for managing periodic tasks and packets. It has a map of intervals and associated tasks and packets, a queue of incoming packets, and a thread that executes periodic tasks at their respective intervals. It has methods to add and remove tasks, set the interval of a task, add packets to the queue, start and stop all tasks, and process packets. It also has a static method called getTimeSource that returns the current time.
-
-- Packet: A class representing a packet with a timestamp and data.
-
-- PeriodicTaskFactory: A class with a static method called createPeriodicTask that takes an interval and a lambda function as arguments and returns a shared pointer to a PeriodicTask object.
-
-- Logger: A class with static methods for logging messages at different levels (e.g., info, warning, error).
-
-- main.cpp: This is the main function for a program that uses the TaskManager class defined in the previous code snippet. The function creates an object of type TaskManager and calls the startAllTasks() method to start the threads that process incoming packets and execute the periodic tasks. Then, it waits for the user to press Enter before calling the stopAllTasks() method to stop these threads and terminate the program.
