@@ -1,4 +1,4 @@
-# Forescout - Technical challenge C++ position
+# Advanced Task and Packet Management in C++
 
 The application uses a TaskManager class to manage the execution of periodic tasks and the processing of incoming packets. The TaskManager class uses a std::map to store tasks and packets, with the key being the interval of the tasks. The TaskManager class also has a std::jthread that executes the tasks and processes the packets at their respective intervals.
 
