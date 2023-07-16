@@ -40,19 +40,8 @@ cd build
 cmake ..
 ```
 This will generate the necessary build files. To build the project, run:
-
-```sh
-make
-```
-
-This will build the forescout executable. To run the executable, run:
-
-```sh
-./forescout
-```
-A sample output of forescout executable is as the following:
-```sh
-ozgurural@ozgurural:~/Desktop/forescout/forescout-cpp-challange/build$ ./forescout 
+A sample output of the executable is as the following:
+```sh 
 [INFO][2022-12-18 18:49:57.890151]: Adding packet 5000 seconds
 [INFO][2022-12-18 18:49:57.890218]: Number of packets added: 1
 [INFO][2022-12-18 18:49:57.890230]: Adding packet 5000 seconds
@@ -116,7 +105,6 @@ To run the unit tests, execute the following command:
 ```
 A sample output of unit_tests is as the following:
 ```sh
-ozgurural@ozgurural:~/Desktop/forescout/forescout-cpp-challange/build$ ./unit_tests 
 Running main() from /home/ozgurural/Downloads/googletest/googletest/src/gtest_main.cc
 [==========] Running 12 tests from 4 test suites.
 [----------] Global test environment set-up.
